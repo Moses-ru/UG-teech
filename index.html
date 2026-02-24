@@ -609,6 +609,25 @@ cursor: pointer;
     }
 }
 
+/* ========== DEBUG LOG (для отладки без F12) ========== */
+#debugLog {
+    position: fixed;
+    bottom: 80px;
+    left: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.85);
+    color: #0f0;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+    font-family: monospace;
+    border: 1px solid #333;
+}
+
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
@@ -622,6 +641,9 @@ cursor: pointer;
 <div class="loading-text">Загрузка обучения...</div>
 <div class="loading-error" id="loadingError"></div>
 </div>
+
+<!-- DEBUG LOG -->
+<div id="debugLog"></div>
 
 <header>
 <div class="logo">
@@ -722,7 +744,7 @@ cursor: pointer;
 <i class="fas fa-redo"></i> Сбросить прогресс
 </button>
 <button class="lesson-btn btn-primary" id="syncProgress" style="width: 100%; margin-top: 10px;">
-<i class="fas fa-sync"></i> Синхронизировать
+<i class="fas fa-sync"></i> Синхронизировать с ботом
 </button>
 </div>
 </div>
@@ -820,6 +842,38 @@ let currentTest = { block: 1, questionIndex: 0, answers: [] };
 let currentRefType = 'menu';
 let isLoading = false;
 
+// ========== DEBUG LOG ФУНКЦИЯ ==========
+function logToScreen(message) {
+    let logBox = document.getElementById('debugLog');
+    if (!logBox) {
+        logBox = document.createElement('div');
+        logBox.id = 'debugLog';
+        logBox.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.85);
+            color: #0f0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 9999;
+            display: none;
+            font-family: monospace;
+            border: 1px solid #333;
+        `;
+        document.body.appendChild(logBox);
+    }
+    const time = new Date().toLocaleTimeString();
+    logBox.innerHTML += `[${time}] ${message}<br>`;
+    logBox.scrollTop = logBox.scrollHeight;
+    logBox.style.display = 'block';
+    console.log(message);
+}
+
 // ========== ФУНКЦИЯ КРАСИВОГО СЕРТИФИКАТА ==========
 function generateCertificate() {
     const user = tg.initDataUnsafe?.user;
@@ -916,8 +970,6 @@ function startConfetti() {
 }
 
 function shareCertificate() {
-    const user = tg.initDataUnsafe?.user;
-    const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : 'Южанин';
     tg.shareUrl('', `🏆 Я стал ЮЖАНИНОМ! Пройти обучение: ${window.location.href}`);
 }
 
@@ -929,21 +981,39 @@ function downloadCertificate() {
 function saveProgress() {
     localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
     
+    logToScreen('💾 Прогресс сохранён в localStorage');
+    
     // ОТПРАВКА ПРОГРЕССА БОТУ ЧЕРЕЗ tg.sendData()
     if (tg && tg.sendData) {
         try {
-            tg.sendData(JSON.stringify({
+            const data = {
                 type: 'progress_sync',
                 currentBlock: userProgress.currentBlock,
                 passedBlocks: userProgress.passedBlocks,
                 testScores: userProgress.testScores,
                 testHistory: userProgress.testHistory,
                 timestamp: new Date().toISOString()
-            }));
-            console.log('📤 Прогресс отправлен боту');
+            };
+            
+            logToScreen('📤 Отправляем боту: ' + JSON.stringify(data).slice(0, 100) + '...');
+            tg.sendData(JSON.stringify(data));
+            logToScreen('✅ ДАННЫЕ ОТПРАВЛЕНЫ!');
+            
+            // Показываем уведомление пользователю
+            setTimeout(() => {
+                logToScreen('📢 Показываем Alert пользователю');
+            }, 500);
         } catch (e) {
-            console.warn('Не удалось отправить данные боту:', e);
+            logToScreen('❌ ОШИБКА ОТПРАВКИ: ' + e.message);
         }
+    } else {
+        logToScreen('⚠️ tg.sendData НЕДОСТУПЕН');
+        logToScreen('tg объект: ' + JSON.stringify({
+            ready: !!tg.ready,
+            expand: !!tg.expand,
+            sendData: !!tg.sendData,
+            showAlert: !!tg.showAlert
+        }));
     }
 }
 
@@ -951,18 +1021,23 @@ function loadProgress() {
     const saved = localStorage.getItem('ujzhan_progress');
     if (saved) {
         userProgress = { ...userProgress, ...JSON.parse(saved) };
+        logToScreen('📥 Прогресс загружен из localStorage');
+    } else {
+        logToScreen('📭 Нет сохранённого прогресса');
     }
     const user = tg.initDataUnsafe?.user;
     if (user) {
         document.getElementById('profileName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
         document.getElementById('profileId').textContent = `ID: ${user.id}`;
+        logToScreen('👤 Пользователь: ' + user.first_name + ' (ID: ' + user.id + ')');
     }
 }
 
-// Синхронизация с ботом (запрос прогресса)
+// Синхронизация с ботом (кнопка в профиле)
 document.getElementById('syncProgress').addEventListener('click', () => {
-    tg.showAlert('🔄 Прогресс синхронизируется...\n\nОткройте бота и напишите /start для получения актуального прогресса!');
+    logToScreen('🔄 Ручная синхронизация запущена');
     saveProgress();
+    tg.showAlert('📊 Прогресс отправлен боту!\n\nОткройте бота и напишите /stats для проверки.');
 });
 
 function getProgressPercent() {
@@ -1082,6 +1157,7 @@ function openChapter(blockNum) {
     userProgress.currentBlock = blockNum;
     userProgress.currentStep = 'text';
     userProgress.textIndex = 0;
+    logToScreen(`📖 Открыт блок ${blockNum}`);
     saveProgress();
     showLesson();
 }
@@ -1094,6 +1170,7 @@ function showLesson() {
     const item = texts[currentLesson.index];
     
     if (!item) {
+        logToScreen('📋 Переход к тесту');
         startTest();
         return;
     }
@@ -1123,6 +1200,7 @@ function showLesson() {
 function nextLesson() {
     currentLesson.index++;
     userProgress.textIndex = currentLesson.index;
+    logToScreen(`📄 Переход на урок ${currentLesson.index + 1}`);
     saveProgress();
     showLesson();
 }
@@ -1145,11 +1223,13 @@ function startTest() {
     showTestQuestion();
     document.getElementById('lessonView').classList.remove('active');
     document.getElementById('testView').classList.add('active');
+    logToScreen('📝 Тест начат');
 }
 
 function showTestQuestion() {
     const questions = appData.questions[currentTest.block] || [];
     if (currentTest.questionIndex >= questions.length) {
+        logToScreen('✅ Все вопросы заданы');
         finishTest();
         return;
     }
@@ -1186,6 +1266,7 @@ function selectAnswer(index) {
     
     const isCorrect = index === q.correct;
     currentTest.answers.push({ questionIndex: currentTest.questionIndex, correct: isCorrect });
+    logToScreen(`💬 Ответ: ${isCorrect ? '✅' : '❌'}`);
     
     const feedback = document.getElementById('testFeedback');
     document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Правильно!' : '❌ Ошибка';
@@ -1207,6 +1288,8 @@ function finishTest() {
     const score = Math.round((correct / total) * 100);
     const passed = score >= 80;
     
+    logToScreen(`📊 Тест завершён: ${correct}/${total} (${score}%)`);
+    
     userProgress.testScores[`chapter_${currentTest.block}`] = correct;
     
     if (!userProgress.testHistory[`chapter_${currentTest.block}`]) {
@@ -1222,10 +1305,13 @@ function finishTest() {
     if (passed) {
         if (!userProgress.passedBlocks.includes(`chapter_${currentTest.block}`)) {
             userProgress.passedBlocks.push(`chapter_${currentTest.block}`);
+            logToScreen(`✅ Блок ${currentTest.block} пройден!`);
         }
         if (currentTest.block === userProgress.currentBlock && currentTest.block < 4) {
             userProgress.currentBlock++;
         }
+    } else {
+        logToScreen(`❌ Блок ${currentTest.block} не пройден (нужно 80%)`);
     }
     
     saveProgress();
@@ -1238,6 +1324,12 @@ function finishTest() {
         : `❌ Не пройдено. Нужно 80%. Результат: ${correct}/${total}`;
     
     tg.showAlert(resultMsg);
+    
+    // Закрываем Web App после теста (триггерит sendData)
+    setTimeout(() => {
+        logToScreen('🚪 Закрываем Web App');
+        tg.close();
+    }, 1500);
 }
 
 document.getElementById('testBack').addEventListener('click', () => {
@@ -1264,9 +1356,11 @@ themeBtn.addEventListener('click', () => {
     if (isDark) {
         body.removeAttribute('data-theme');
         icon.className = 'fas fa-moon';
+        logToScreen('🌙 Светлая тема');
     } else {
         body.setAttribute('data-theme', 'dark');
         icon.className = 'fas fa-sun';
+        logToScreen('☀️ Тёмная тема');
     }
 });
 
@@ -1279,22 +1373,34 @@ document.getElementById('resetProgress').addEventListener('click', () => {
             };
             saveProgress();
             updateProgressUI();
+            logToScreen('🗑️ Прогресс сброшен');
             tg.showAlert('Прогресс сброшен!');
         }
     });
 });
 
+// Закрытие при свайпе вниз
+window.addEventListener('beforeunload', () => {
+    logToScreen('📤 beforeunload - сохраняем прогресс');
+    saveProgress();
+});
+
 async function init() {
+    logToScreen('🚀 Инициализация Web App...');
+    logToScreen('Telegram WebApp: ' + (tg ? 'OK' : 'FAIL'));
+    
     loadProgress();
     updateProgressUI();
     
     if (userProgress.passedBlocks.length === 4) {
+        logToScreen('🏆 Все блоки пройдены - показываем сертификат');
         document.getElementById('certificateContainer').innerHTML = generateCertificate();
         startConfetti();
     }
     
     setTimeout(() => {
         document.getElementById('loading').classList.add('hidden');
+        logToScreen('✅ Загрузка завершена');
     }, 500);
 }
 
