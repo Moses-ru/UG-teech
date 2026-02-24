@@ -30,7 +30,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background-color: var(--bg-color); color: var(--text-main); transition: var(--transition); overflow-x: hidden; padding-bottom: var(--nav-height); }
 
-/* HEADER */
 header {
 position: fixed; top: 0; left: 0; right: 0;
 background: rgba(255, 255, 255, 0.95);
@@ -56,13 +55,11 @@ transition: var(--transition);
 }
 .btn-theme:active { transform: scale(0.95); }
 
-/* MAIN CONTAINER */
 .main-container {
 padding: calc(var(--header-height) + 16px) 16px 16px;
 min-height: 100vh;
 }
 
-/* PROGRESS CARD */
 .progress-card {
 background: var(--card-bg);
 border-radius: var(--radius);
@@ -80,7 +77,6 @@ box-shadow: var(--shadow);
 .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
 .stat-label { font-size: 0.7rem; color: var(--text-sec); }
 
-/* CHAPTERS */
 .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .chapters-grid { display: grid; gap: 12px; margin-bottom: 24px; }
 .chapter-card {
@@ -93,8 +89,6 @@ align-items: center;
 cursor: pointer;
 transition: var(--transition);
 box-shadow: var(--shadow);
-position: relative;
-overflow: hidden;
 }
 .chapter-card:active { transform: scale(0.98); }
 .chapter-card.locked { opacity: 0.6; pointer-events: none; }
@@ -122,7 +116,6 @@ font-weight: 600;
 .status-current { background: var(--primary); color: white; }
 .status-done { background: #27ae60; color: white; }
 
-/* LESSON VIEW */
 .lesson-view {
 position: fixed;
 top: 0; left: 0; width: 100%; height: 100%;
@@ -131,7 +124,6 @@ z-index: 1001;
 transform: translateX(100%);
 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 overflow-y: auto;
--webkit-overflow-scrolling: touch;
 }
 .lesson-view.active { transform: translateX(0); }
 .lesson-header {
@@ -161,7 +153,7 @@ margin-bottom: 20px;
 object-fit: cover;
 max-height: 300px;
 }
-.lesson-text { font-size: 1rem; line-height: 1.8; color: var(--text-main); margin-bottom: 24px; }
+.lesson-text { font-size: 1rem; line-height: 1.8; color: var(--text-main); margin-bottom: 24px; white-space: pre-line; }
 .lesson-nav { display: flex; gap: 12px; margin-top: 30px; }
 .lesson-btn {
 flex: 1;
@@ -177,7 +169,6 @@ transition: var(--transition);
 .btn-secondary { background: var(--bg-color); color: var(--text-main); border: 1px solid rgba(0,0,0,0.1); }
 .lesson-btn:active { transform: scale(0.98); }
 
-/* TEST VIEW */
 .test-view {
 position: fixed;
 top: 0; left: 0; width: 100%; height: 100%;
@@ -186,7 +177,6 @@ z-index: 1002;
 transform: translateX(100%);
 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 overflow-y: auto;
--webkit-overflow-scrolling: touch;
 }
 .test-view.active { transform: translateX(0); }
 .test-progress { padding: 16px; background: var(--card-bg); border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -214,7 +204,6 @@ display: none;
 }
 .test-feedback.show { display: block; }
 
-/* REFERENCES */
 .references-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
 .ref-card {
 background: var(--card-bg);
@@ -249,7 +238,6 @@ box-shadow: var(--shadow);
 .ref-item-key { font-weight: 700; color: var(--primary); margin-bottom: 8px; }
 .ref-item-value { font-size: 0.95rem; line-height: 1.6; }
 
-/* BOTTOM NAV */
 .bottom-nav {
 position: fixed;
 bottom: 0; left: 0; right: 0;
@@ -277,7 +265,6 @@ border-radius: 12px;
 .nav-icon { font-size: 1.3rem; }
 .nav-label { font-size: 0.75rem; font-weight: 500; }
 
-/* LOADING */
 .loading {
 position: fixed;
 top: 0; left: 0; width: 100%; height: 100%;
@@ -304,11 +291,9 @@ max-width: 80%;
 50% { transform: scale(1.1); opacity: 0.7; }
 }
 
-/* SCREENS */
 .screen { display: none; }
 .screen.active { display: block; }
 
-/* CERTIFICATE */
 .certificate {
 background: linear-gradient(135deg, var(--primary), var(--primary-light));
 color: white;
@@ -320,7 +305,6 @@ margin-bottom: 20px;
 .certificate-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
 .certificate-date { font-size: 0.9rem; opacity: 0.9; }
 
-/* SCROLLBAR */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
@@ -328,14 +312,13 @@ margin-bottom: 20px;
 </style>
 </head>
 <body data-theme="dark">
-<!-- LOADING -->
+
 <div class="loading" id="loading">
 <div class="loading-icon"><i class="fas fa-graduation-cap"></i></div>
 <div class="loading-text">Загрузка обучения...</div>
 <div class="loading-error" id="loadingError"></div>
 </div>
 
-<!-- HEADER -->
 <header>
 <div class="logo">
 <i class="fas fa-utensils"></i>
@@ -348,9 +331,7 @@ margin-bottom: 20px;
 </div>
 </header>
 
-<!-- MAIN CONTAINER -->
 <div class="main-container">
-<!-- HOME SCREEN -->
 <div class="screen active" id="homeScreen">
 <div class="progress-card">
 <div class="progress-header">
@@ -384,9 +365,7 @@ margin-bottom: 20px;
 <i class="fas fa-book"></i>
 Блоки обучения
 </div>
-<div class="chapters-grid" id="chaptersGrid">
-<!-- Chapters will be inserted here -->
-</div>
+<div class="chapters-grid" id="chaptersGrid"></div>
 
 <div class="section-title">
 <i class="fas fa-graduation-cap"></i>
@@ -395,7 +374,6 @@ margin-bottom: 20px;
 <div id="certificateContainer"></div>
 </div>
 
-<!-- REFERENCES SCREEN -->
 <div class="screen" id="referencesScreen">
 <div class="section-title">
 <i class="fas fa-search"></i>
@@ -422,12 +400,9 @@ margin-bottom: 20px;
 <i class="fas fa-list"></i>
 Результаты
 </div>
-<div class="ref-results" id="refResults">
-<!-- Results will be inserted here -->
-</div>
+<div class="ref-results" id="refResults"></div>
 </div>
 
-<!-- PROFILE SCREEN -->
 <div class="screen" id="profileScreen">
 <div class="progress-card">
 <div class="progress-header">
@@ -449,13 +424,10 @@ margin-bottom: 20px;
 <i class="fas fa-chart-bar"></i>
 Статистика по блокам
 </div>
-<div id="blockStats" style="display: grid; gap: 12px;">
-<!-- Block stats will be inserted here -->
-</div>
+<div id="blockStats" style="display: grid; gap: 12px;"></div>
 </div>
 </div>
 
-<!-- LESSON VIEW -->
 <div class="lesson-view" id="lessonView">
 <div class="lesson-header">
 <button class="lesson-back" id="lessonBack">
@@ -464,12 +436,9 @@ margin-bottom: 20px;
 <div style="font-weight: 600;" id="lessonTitle">Блок 1</div>
 <div style="width: 40px;"></div>
 </div>
-<div class="lesson-content" id="lessonContent">
-<!-- Lesson content will be inserted here -->
-</div>
+<div class="lesson-content" id="lessonContent"></div>
 </div>
 
-<!-- TEST VIEW -->
 <div class="test-view" id="testView">
 <div class="lesson-header">
 <button class="lesson-back" id="testBack">
@@ -485,9 +454,7 @@ margin-bottom: 20px;
 </div>
 <div class="lesson-content">
 <div class="test-question" id="testQuestion">Вопрос...</div>
-<div class="test-options" id="testOptions">
-<!-- Options will be inserted here -->
-</div>
+<div class="test-options" id="testOptions"></div>
 <div class="test-feedback" id="testFeedback">
 <div style="font-weight: 600; margin-bottom: 8px;" id="feedbackTitle"></div>
 <div id="feedbackText"></div>
@@ -498,7 +465,6 @@ margin-bottom: 20px;
 </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
 <div class="nav-item active" data-screen="homeScreen">
 <div class="nav-icon"><i class="fas fa-home"></i></div>
@@ -515,17 +481,41 @@ margin-bottom: 20px;
 </div>
 
 <script>
-// === TELEGRAM WEB APP ===
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// === КОНФИГУРАЦИЯ ===
 const SHEET_ID = '158E5Bv70FryY6MFPADvtXAaDgndIvzWgCkTXC8IhmnQ';
 const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}';
 
-// === ИСПРАВЛЕННЫЙ CSV ПАРСЕР ===
-// Правильно обрабатывает кавычки, запятые внутри текста и переносы строк
+const FALLBACK_DATA = {
+    texts: {
+        1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это эталон хинкали с 18 складками.", image: "" }],
+        2: [{ text: "🤝 СЕРВИС\n\nГость всегда прав.", image: "" }],
+        3: [{ text: "🍳 КУХНЯ\n\nХинкали едят руками.", image: "" }],
+        4: [{ text: "🍷 БАР И ВИНО\n\nВино подбирается под блюдо.", image: "" }]
+    },
+    questions: {
+        1: [{ question: "Почему 18+?", options: ["Цензура", "Эталон хинкали", "Число"], correct: 1, explanation: "18 складок" }],
+        2: [{ question: "Гость всегда прав?", options: ["Да", "Нет"], correct: 0, explanation: "Да!" }],
+        3: [{ question: "Чем едят хинкали?", options: ["Вилкой", "Руками"], correct: 1, explanation: "Руками!" }],
+        4: [{ question: "Как подбирают вино?", options: ["Под блюдо", "Случайно"], correct: 0, explanation: "Под блюдо!" }]
+    },
+    menu: { "хинкали": "🥟 18 складок", "хачапури": "🧀 Сыр" },
+    wine: { "стейк": "🍷 Красное", "рыба": "🥂 Белое" },
+    allergens: { "орехи": "⚠️ Орехи", "глютен": "⚠️ Глютен" }
+};
+
+let appData = { texts: {}, questions: {}, menu: {}, wine: {}, allergens: {} };
+let userProgress = {
+    currentBlock: 1, currentStep: 'text', textIndex: 0,
+    testScores: {}, passedBlocks: [], blocksLocked: {}, testHistory: {}
+};
+let currentLesson = { block: 1, index: 0 };
+let currentTest = { block: 1, questionIndex: 0, answers: [] };
+let currentRefType = 'menu';
+
+// === УЛУЧШЕННЫЙ CSV ПАРСЕР ===
 function parseCSV(text) {
     const rows = [];
     let currentRow = [];
@@ -539,11 +529,9 @@ function parseCSV(text) {
         if (inQuotes) {
             if (char === '"') {
                 if (nextChar === '"') {
-                    // Экранированная кавычка ""
                     currentCell += '"';
                     i++;
                 } else {
-                    // Конец цитирования
                     inQuotes = false;
                 }
             } else {
@@ -551,14 +539,11 @@ function parseCSV(text) {
             }
         } else {
             if (char === '"') {
-                // Начало цитирования
                 inQuotes = true;
             } else if (char === ',') {
-                // Конец ячейки
                 currentRow.push(currentCell.trim());
                 currentCell = '';
             } else if (char === '\n') {
-                // Конец строки
                 currentRow.push(currentCell.trim());
                 if (currentRow.length > 0 && currentRow.some(c => c !== '')) {
                     rows.push(currentRow);
@@ -571,7 +556,6 @@ function parseCSV(text) {
         }
     }
     
-    // Последняя ячейка
     if (currentCell || currentRow.length > 0) {
         currentRow.push(currentCell.trim());
         if (currentRow.some(c => c !== '')) {
@@ -579,7 +563,6 @@ function parseCSV(text) {
         }
     }
     
-    // Преобразуем в объекты
     if (rows.length < 2) return [];
     const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
     
@@ -592,41 +575,6 @@ function parseCSV(text) {
     });
 }
 
-// === FALLBACK ДАННЫЕ ===
-const FALLBACK_DATA = {
-    texts: {
-        1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это не просто число. Это эталон хинкали с 18 складками.", image: "" }],
-        2: [{ text: "🤝 СЕРВИС\n\nГость всегда прав. Даже когда не прав.", image: "" }],
-        3: [{ text: "🍳 КУХНЯ\n\nХинкали едят руками. Вилка — табу.", image: "" }],
-        4: [{ text: "🍷 БАР И ВИНО\n\nВино подбирается под блюдо, а не наоборот.", image: "" }]
-    },
-    questions: {
-        1: [{ question: "Почему 18+?", options: ["Это цензура", "Эталон хинкали", "Просто красивое число"], correct: 1, explanation: "Эталон хинкали — 18 складок" }],
-        2: [{ question: "Гость всегда прав?", options: ["Да", "Нет", "Иногда"], correct: 0, explanation: "Даже когда не прав!" }],
-        3: [{ question: "Чем едят хинкали?", options: ["Вилкой", "Ножом", "Руками"], correct: 2, explanation: "Только руками!" }],
-        4: [{ question: "Как подбирают вино?", options: ["Под блюдо", "Случайно", "По цене"], correct: 0, explanation: "Вино под блюдо!" }]
-    },
-    menu: { "хинкали": "🥟 18 складок, едят руками", "хачапури": "🧀 Сыр, тесто, любовь" },
-    wine: { "стейк": "🍷 Красное сухое", "рыба": "🥂 Белое сухое" },
-    allergens: { "орехи": "⚠️ Содержит орехи", "глютен": "⚠️ Содержит глютен" }
-};
-
-// === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
-let appData = { texts: {}, questions: {}, menu: {}, wine: {}, allergens: {} };
-let userProgress = {
-    currentBlock: 1,
-    currentStep: 'text',
-    textIndex: 0,
-    testScores: {},
-    passedBlocks: [],
-    blocksLocked: {},
-    testHistory: {}
-};
-let currentLesson = { block: 1, index: 0 };
-let currentTest = { block: 1, questionIndex: 0, answers: [] };
-let currentRefType = 'menu';
-
-// === ЗАГРУЗКА ДАННЫХ ===
 async function fetchSheet(sheetName, timeout = 10000) {
     const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
     const controller = new AbortController();
@@ -654,10 +602,12 @@ async function loadAllData() {
     ]);
     
     let loaded = false;
+    const debugInfo = { texts: 0, questions: 0, menu: 0, wine: 0, allergens: 0 };
     
     // Texts
     if (textsRows && textsRows.length > 0) {
         loaded = true;
+        debugInfo.texts = textsRows.length;
         textsRows.forEach(row => {
             const ch = parseInt(row.chapter) || 1;
             if (ch >= 1 && ch <= 4) {
@@ -670,27 +620,40 @@ async function loadAllData() {
         });
     }
     
-    // Questions
+    // Questions - ГИБКАЯ ПРОВЕРКА КОЛОНОК
     if (questionsRows && questionsRows.length > 0) {
         loaded = true;
+        debugInfo.questions = questionsRows.length;
+        console.log('Questions rows:', questionsRows.length);
+        console.log('First row keys:', Object.keys(questionsRows[0]));
+        
         questionsRows.forEach(row => {
             const ch = parseInt(row.chapter) || 1;
             if (ch >= 1 && ch <= 4) {
                 const options = [];
+                // Пробуем разные форматы
                 for (let i = 1; i <= 10; i++) {
-                    const opt = row[`option_${i}`] || row[String.fromCharCode(64 + i).toLowerCase()];
-                    if (opt) options.push(opt);
+                    const opt = row[`option_${i}`] || row[`option${i}`] || row[`Option_${i}`] || row[`Option${i}`];
+                    if (opt && opt.trim() !== '') options.push(opt);
                 }
-                let correct = parseInt(row.correct) || 0;
-                if (isNaN(correct) && row.correct) {
-                    correct = row.correct.toUpperCase().charCodeAt(0) - 65;
+                
+                let correct = 0;
+                const correctRaw = row.correct || row.Correct || row.CORRECT;
+                if (correctRaw) {
+                    const cr = String(correctRaw).trim();
+                    if (cr >= 'A' && cr <= 'J') {
+                        correct = cr.charCodeAt(0) - 65;
+                    } else if (!isNaN(parseInt(cr))) {
+                        correct = parseInt(cr);
+                    }
                 }
+                
                 if (!appData.questions[ch]) appData.questions[ch] = [];
                 appData.questions[ch].push({
-                    question: row.question || '',
+                    question: row.question || row.Question || '',
                     options,
                     correct,
-                    explanation: row.explanation || ''
+                    explanation: row.explanation || row.Explanation || ''
                 });
             }
         });
@@ -699,36 +662,40 @@ async function loadAllData() {
     // References
     if (menuRows && menuRows.length > 0) {
         loaded = true;
+        debugInfo.menu = menuRows.length;
         menuRows.forEach(r => { 
-            const key = (r.key || '').toLowerCase().trim();
-            const val = r.value || '';
+            const key = (r.key || r.Key || '').toLowerCase().trim();
+            const val = r.value || r.Value || '';
             if (key && val) appData.menu[key] = val; 
         });
     }
     if (wineRows && wineRows.length > 0) {
         loaded = true;
+        debugInfo.wine = wineRows.length;
         wineRows.forEach(r => { 
-            const key = (r.key || '').toLowerCase().trim();
-            const val = r.value || '';
+            const key = (r.key || r.Key || '').toLowerCase().trim();
+            const val = r.value || r.Value || '';
             if (key && val) appData.wine[key] = val; 
         });
     }
     if (allergensRows && allergensRows.length > 0) {
         loaded = true;
+        debugInfo.allergens = allergensRows.length;
         allergensRows.forEach(r => { 
-            const key = (r.key || '').toLowerCase().trim();
-            const val = r.value || '';
+            const key = (r.key || r.Key || '').toLowerCase().trim();
+            const val = r.value || r.Value || '';
             if (key && val) appData.allergens[key] = val; 
         });
     }
     
-    // Fallback если пусто
+    console.log('📊 Debug:', debugInfo);
+    console.log('Questions loaded:', appData.questions);
+    
     if (!loaded) {
         console.warn('Using fallback data');
         appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
         document.getElementById('loadingError').innerHTML = '⚠️ Google Sheets недоступны<br>Используются тестовые данные';
     } else {
-        // Merge с fallback для пустых блоков
         for (let ch = 1; ch <= 4; ch++) {
             if (!appData.texts[ch] || appData.texts[ch].length === 0) {
                 appData.texts[ch] = FALLBACK_DATA.texts[ch] || [];
@@ -738,17 +705,8 @@ async function loadAllData() {
             }
         }
     }
-    
-    console.log('Data loaded:', {
-        texts: Object.keys(appData.texts).map(k => `${k}:${appData.texts[k].length}`),
-        questions: Object.keys(appData.questions).map(k => `${k}:${appData.questions[k].length}`),
-        menu: Object.keys(appData.menu).length,
-        wine: Object.keys(appData.wine).length,
-        allergens: Object.keys(appData.allergens).length
-    });
 }
 
-// === ПРОГРЕСС ===
 function loadProgress() {
     const saved = localStorage.getItem('ujzhan_progress');
     if (saved) {
@@ -785,7 +743,6 @@ function updateProgressUI() {
     renderBlockStats();
 }
 
-// === РЕНДЕРИНГ ===
 function renderChapters() {
     const grid = document.getElementById('chaptersGrid');
     const chapters = [
@@ -833,14 +790,13 @@ function renderBlockStats() {
         const score = userProgress.testScores[`chapter_${ch.num}`] || 0;
         const total = appData.questions[ch.num]?.length || 0;
         const history = userProgress.testHistory[`chapter_${ch.num}`] || [];
-        const attempts = history.length;
         
         return `
         <div class="ref-item">
             <div class="ref-item-key">Блок ${ch.num}: ${ch.title}</div>
             <div class="ref-item-value">
                 Результат: ${score}/${total} (${Math.round((score/total)*100) || 0}%)<br>
-                Попыток: ${attempts}
+                Попыток: ${history.length}
             </div>
         </div>
         `;
@@ -867,7 +823,6 @@ function renderReferences(query = '') {
     `).join('');
 }
 
-// === НАВИГАЦИЯ ===
 function switchScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -876,12 +831,9 @@ function switchScreen(screenId) {
 }
 
 document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-        switchScreen(item.dataset.screen);
-    });
+    item.addEventListener('click', () => switchScreen(item.dataset.screen));
 });
 
-// === УРОКИ ===
 function openChapter(blockNum) {
     if (blockNum > userProgress.currentBlock) return;
     currentLesson = { block: blockNum, index: 0 };
@@ -910,7 +862,7 @@ function showLesson() {
     if (item.image && item.image.startsWith('http')) {
         html += `<img src="${item.image}" class="lesson-image" alt="Lesson image">`;
     }
-    html += `<div class="lesson-text">${item.text.replace(/\n/g, '<br>')}</div>`;
+    html += `<div class="lesson-text">${item.text}</div>`;
     
     const isLast = currentLesson.index >= texts.length - 1;
     html += `
@@ -942,19 +894,12 @@ function prevLesson() {
     }
 }
 
-function closeLesson() {
+document.getElementById('lessonBack').addEventListener('click', () => {
     document.getElementById('lessonView').classList.remove('active');
-}
+});
 
-document.getElementById('lessonBack').addEventListener('click', closeLesson);
-
-// === ТЕСТЫ ===
 function startTest() {
-    currentTest = {
-        block: currentLesson.block,
-        questionIndex: 0,
-        answers: []
-    };
+    currentTest = { block: currentLesson.block, questionIndex: 0, answers: [] };
     showTestQuestion();
     document.getElementById('lessonView').classList.remove('active');
     document.getElementById('testView').classList.add('active');
@@ -1048,7 +993,7 @@ function finishTest() {
     
     const resultMsg = passed 
         ? `🎉 Блок ${currentTest.block} пройден! ${correct}/${total}`
-        : `❌ Не пройдено. Нужно 80%. Ваш результат: ${correct}/${total}`;
+        : `❌ Не пройдено. Нужно 80%. Результат: ${correct}/${total}`;
     
     tg.showAlert(resultMsg);
 }
@@ -1057,7 +1002,6 @@ document.getElementById('testBack').addEventListener('click', () => {
     document.getElementById('testView').classList.remove('active');
 });
 
-// === СПРАВОЧНИКИ ===
 document.querySelectorAll('.ref-card').forEach(card => {
     card.addEventListener('click', () => {
         currentRefType = card.dataset.type;
@@ -1070,7 +1014,6 @@ document.getElementById('refSearch').addEventListener('input', (e) => {
     renderReferences(e.target.value);
 });
 
-// === ТЕМА ===
 const themeBtn = document.getElementById('themeToggle');
 themeBtn.addEventListener('click', () => {
     const body = document.body;
@@ -1085,18 +1028,12 @@ themeBtn.addEventListener('click', () => {
     }
 });
 
-// === СБРОС ПРОГРЕССА ===
 document.getElementById('resetProgress').addEventListener('click', () => {
     tg.showConfirm('Сбросить весь прогресс?', (confirmed) => {
         if (confirmed) {
             userProgress = {
-                currentBlock: 1,
-                currentStep: 'text',
-                textIndex: 0,
-                testScores: {},
-                passedBlocks: [],
-                blocksLocked: {},
-                testHistory: {}
+                currentBlock: 1, currentStep: 'text', textIndex: 0,
+                testScores: {}, passedBlocks: [], blocksLocked: {}, testHistory: {}
             };
             saveProgress();
             updateProgressUI();
@@ -1105,7 +1042,6 @@ document.getElementById('resetProgress').addEventListener('click', () => {
     });
 });
 
-// === ИНИЦИАЛИЗАЦИЯ ===
 async function init() {
     loadProgress();
     
@@ -1120,7 +1056,6 @@ async function init() {
     updateProgressUI();
     renderReferences();
     
-    // Сертификат при полном прохождении
     if (userProgress.passedBlocks.length === 4) {
         document.getElementById('certificateContainer').innerHTML = `
         <div class="certificate">
