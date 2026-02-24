@@ -752,6 +752,23 @@ function loadProgress() {
 
 function saveProgress() {
     localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
+    
+    // ОТПРАВКА ПРОГРЕССА БОТУ (для синхронизации)
+    if (tg && tg.sendData) {
+        try {
+            tg.sendData(JSON.stringify({
+                type: 'progress_sync',
+                currentBlock: userProgress.currentBlock,
+                passedBlocks: userProgress.passedBlocks,
+                testScores: userProgress.testScores,
+                testHistory: userProgress.testHistory,
+                timestamp: new Date().toISOString()
+            }));
+            console.log('📤 Прогресс отправлен боту');
+        } catch (e) {
+            console.warn('Не удалось отправить данные боту:', e);
+        }
+    }
 }
 
 function getProgressPercent() {
