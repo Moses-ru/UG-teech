@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Обучение Южане</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+--primary: #722F37;
+--primary-light: #9e4650;
+--bg-color: #f8f9fa;
+--card-bg: #ffffff;
+--text-main: #2c3e50;
+--text-sec: #7f8c8d;
+--shadow: 0 4px 20px rgba(0,0,0,0.1);
+--radius: 16px;
+--transition: all 0.3s ease;
+--header-height: 60px;
+--nav-height: 70px;
+}
+[data-theme="dark"] {
+--bg-color: #121212;
+--card-bg: #1e1e1e;
+--text-main: #ecf0f1;
+--text-sec: #bdc3c7;
+--shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background-color: var(--bg-color); color: var(--text-main); transition: var(--transition); overflow-x: hidden; padding-bottom: var(--nav-height); }
+
+/* HEADER */
+header {
+position: fixed; top: 0; left: 0; right: 0;
+background: rgba(255, 255, 255, 0.95);
+backdrop-filter: blur(10px);
+z-index: 1000;
+padding: 12px 16px;
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 1px solid rgba(0,0,0,0.05);
+height: var(--header-height);
+}
+[data-theme="dark"] header { background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.logo { font-size: 1.2rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+.btn-theme {
+width: 36px; height: 36px;
+border-radius: 10px;
+background: var(--card-bg);
+border: 1px solid rgba(0,0,0,0.1);
+color: var(--text-main);
+display: flex; align-items: center; justify-content: center;
+cursor: pointer;
+transition: var(--transition);
+}
+.btn-theme:active { transform: scale(0.95); }
+
+/* MAIN CONTAINER */
+.main-container {
+padding: calc(var(--header-height) + 16px) 16px 16px;
+min-height: 100vh;
+}
+
+/* PROGRESS CARD */
+.progress-card {
+background: var(--card-bg);
+border-radius: var(--radius);
+padding: 20px;
+margin-bottom: 20px;
+box-shadow: var(--shadow);
+}
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.progress-title { font-size: 1.1rem; font-weight: 700; }
+.progress-percent { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.progress-bar-bg { height: 12px; background: rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+.progress-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--primary), var(--primary-light)); transition: width 0.8s ease-out; }
+.progress-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat-box { text-align: center; padding: 8px; background: var(--bg-color); border-radius: 8px; }
+.stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 0.7rem; color: var(--text-sec); }
+
+/* CHAPTERS */
+.section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.chapters-grid { display: grid; gap: 12px; margin-bottom: 24px; }
+.chapter-card {
+background: var(--card-bg);
+border-radius: var(--radius);
+padding: 16px;
+display: flex;
+gap: 16px;
+align-items: center;
+cursor: pointer;
+transition: var(--transition);
+box-shadow: var(--shadow);
+position: relative;
+overflow: hidden;
+}
+.chapter-card:active { transform: scale(0.98); }
+.chapter-card.locked { opacity: 0.6; pointer-events: none; }
+.chapter-card.completed { border: 2px solid #27ae60; }
+.chapter-card.current { border: 2px solid var(--primary); }
+.chapter-icon {
+width: 50px; height: 50px;
+border-radius: 12px;
+background: var(--primary);
+color: white;
+display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem;
+flex-shrink: 0;
+}
+.chapter-info { flex: 1; }
+.chapter-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.chapter-desc { font-size: 0.85rem; color: var(--text-sec); }
+.chapter-status {
+padding: 4px 12px;
+border-radius: 12px;
+font-size: 0.75rem;
+font-weight: 600;
+}
+.status-lock { background: rgba(0,0,0,0.1); color: var(--text-sec); }
+.status-current { background: var(--primary); color: white; }
+.status-done { background: #27ae60; color: white; }
+
+/* LESSON VIEW */
+.lesson-view {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: var(--bg-color);
+z-index: 1001;
+transform: translateX(100%);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+.lesson-view.active { transform: translateX(0); }
+.lesson-header {
+position: sticky; top: 0;
+background: var(--card-bg);
+padding: 16px;
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 1px solid rgba(0,0,0,0.05);
+z-index: 10;
+}
+[data-theme="dark"] .lesson-header { border-bottom: 1px solid rgba(255,255,255,0.05); }
+.lesson-back {
+width: 40px; height: 40px;
+border-radius: 50%;
+background: rgba(0,0,0,0.05);
+border: none;
+color: var(--text-main);
+font-size: 1.2rem;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+}
+.lesson-content { padding: 20px; }
+.lesson-image {
+width: 100%;
+border-radius: var(--radius);
+margin-bottom: 20px;
+object-fit: cover;
+max-height: 300px;
+}
+.lesson-text { font-size: 1rem; line-height: 1.8; color: var(--text-main); margin-bottom: 24px; }
+.lesson-nav { display: flex; gap: 12px; margin-top: 30px; }
+.lesson-btn {
+flex: 1;
+padding: 14px;
+border-radius: 12px;
+border: none;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-secondary { background: var(--bg-color); color: var(--text-main); border: 1px solid rgba(0,0,0,0.1); }
+.lesson-btn:active { transform: scale(0.98); }
+
+/* TEST VIEW */
+.test-view {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: var(--bg-color);
+z-index: 1002;
+transform: translateX(100%);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+.test-view.active { transform: translateX(0); }
+.test-progress { padding: 16px; background: var(--card-bg); border-bottom: 1px solid rgba(0,0,0,0.05); }
+.test-question { padding: 20px; font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; }
+.test-options { display: grid; gap: 12px; }
+.test-option {
+padding: 16px;
+background: var(--card-bg);
+border-radius: 12px;
+border: 2px solid transparent;
+cursor: pointer;
+transition: var(--transition);
+text-align: left;
+}
+.test-option:active { transform: scale(0.98); }
+.test-option.selected { border-color: var(--primary); background: rgba(114, 47, 55, 0.1); }
+.test-option.correct { border-color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+.test-option.wrong { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+.test-feedback {
+padding: 16px;
+margin-top: 16px;
+border-radius: 12px;
+background: rgba(114, 47, 55, 0.05);
+display: none;
+}
+.test-feedback.show { display: block; }
+
+/* REFERENCES */
+.references-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.ref-card {
+background: var(--card-bg);
+border-radius: var(--radius);
+padding: 20px 16px;
+text-align: center;
+cursor: pointer;
+transition: var(--transition);
+box-shadow: var(--shadow);
+}
+.ref-card:active { transform: scale(0.95); }
+.ref-icon { font-size: 2rem; margin-bottom: 8px; }
+.ref-title { font-size: 0.9rem; font-weight: 600; }
+.search-box {
+width: 100%;
+padding: 12px 16px;
+border-radius: 12px;
+border: 1px solid rgba(0,0,0,0.1);
+background: var(--card-bg);
+color: var(--text-main);
+font-size: 1rem;
+margin-bottom: 16px;
+}
+[data-theme="dark"] .search-box { border-color: rgba(255,255,255,0.1); }
+.ref-results { display: grid; gap: 12px; }
+.ref-item {
+background: var(--card-bg);
+border-radius: 12px;
+padding: 16px;
+box-shadow: var(--shadow);
+}
+.ref-item-key { font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+.ref-item-value { font-size: 0.95rem; line-height: 1.6; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+background: var(--card-bg);
+border-top: 1px solid rgba(0,0,0,0.05);
+display: flex;
+justify-content: space-around;
+padding: 8px 0;
+z-index: 1000;
+}
+[data-theme="dark"] .bottom-nav { border-top: 1px solid rgba(255,255,255,0.05); }
+.nav-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+padding: 8px 16px;
+color: var(--text-sec);
+cursor: pointer;
+transition: var(--transition);
+border-radius: 12px;
+}
+.nav-item.active { color: var(--primary); }
+.nav-item:active { transform: scale(0.95); }
+.nav-icon { font-size: 1.3rem; }
+.nav-label { font-size: 0.75rem; font-weight: 500; }
+
+/* LOADING */
+.loading {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: var(--bg-color);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 2000;
+transition: opacity 0.5s ease;
+}
+.loading.hidden { opacity: 0; pointer-events: none; }
+.loading-icon { font-size: 3rem; color: var(--primary); margin-bottom: 20px; animation: pulse 1.5s infinite; }
+.loading-text { font-size: 1.1rem; color: var(--text-sec); }
+@keyframes pulse {
+0%, 100% { transform: scale(1); opacity: 1; }
+50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* CERTIFICATE */
+.certificate {
+background: linear-gradient(135deg, var(--primary), var(--primary-light));
+color: white;
+padding: 30px;
+border-radius: var(--radius);
+text-align: center;
+margin-bottom: 20px;
+}
+.certificate-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
+.certificate-date { font-size: 0.9rem; opacity: 0.9; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body data-theme="dark">
+<!-- LOADING -->
+<div class="loading" id="loading">
+<div class="loading-icon"><i class="fas fa-graduation-cap"></i></div>
+<div class="loading-text">Загрузка обучения...</div>
+</div>
+
+<!-- HEADER -->
+<header>
+<div class="logo">
+<i class="fas fa-utensils"></i>
+<span>Южане Обучение</span>
+</div>
+<div class="header-actions">
+<button class="btn-theme" id="themeToggle">
+<i class="fas fa-sun"></i>
+</button>
+</div>
+</header>
+
+<!-- MAIN CONTAINER -->
+<div class="main-container">
+<!-- HOME SCREEN -->
+<div class="screen active" id="homeScreen">
+<div class="progress-card">
+<div class="progress-header">
+<span class="progress-title">Твой прогресс</span>
+<span class="progress-percent" id="progressPercent">0%</span>
+</div>
+<div class="progress-bar-bg">
+<div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+</div>
+<div class="progress-stats">
+<div class="stat-box">
+<div class="stat-value" id="statCompleted">0</div>
+<div class="stat-label">Пройдено</div>
+</div>
+<div class="stat-box">
+<div class="stat-value" id="statTotal">4</div>
+<div class="stat-label">Блоков</div>
+</div>
+<div class="stat-box">
+<div class="stat-value" id="statTests">0</div>
+<div class="stat-label">Тестов</div>
+</div>
+<div class="stat-box">
+<div class="stat-value" id="statScore">0%</div>
+<div class="stat-label">Средний</div>
+</div>
+</div>
+</div>
+
+<div class="section-title">
+<i class="fas fa-book"></i>
+Блоки обучения
+</div>
+<div class="chapters-grid" id="chaptersGrid">
+<!-- Chapters will be inserted here -->
+</div>
+
+<div class="section-title">
+<i class="fas fa-graduation-cap"></i>
+Достижения
+</div>
+<div id="certificateContainer"></div>
+</div>
+
+<!-- REFERENCES SCREEN -->
+<div class="screen" id="referencesScreen">
+<div class="section-title">
+<i class="fas fa-search"></i>
+Поиск по справочникам
+</div>
+<input type="text" class="search-box" id="refSearch" placeholder="Введите название блюда...">
+
+<div class="references-grid">
+<div class="ref-card" data-type="menu">
+<div class="ref-icon">🍽️</div>
+<div class="ref-title">Меню</div>
+</div>
+<div class="ref-card" data-type="wine">
+<div class="ref-icon">🍷</div>
+<div class="ref-title">Вино</div>
+</div>
+<div class="ref-card" data-type="allergens">
+<div class="ref-icon">⚠️</div>
+<div class="ref-title">Аллергены</div>
+</div>
+</div>
+
+<div class="section-title" id="refResultsTitle">
+<i class="fas fa-list"></i>
+Результаты
+</div>
+<div class="ref-results" id="refResults">
+<!-- Results will be inserted here -->
+</div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profileScreen">
+<div class="progress-card">
+<div class="progress-header">
+<span class="progress-title">Профиль</span>
+</div>
+<div style="text-align: center; padding: 20px;">
+<div style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem; color: white;">
+<i class="fas fa-user"></i>
+</div>
+<div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;" id="profileName">Гость</div>
+<div style="color: var(--text-sec); margin-bottom: 20px;" id="profileId">ID: ---</div>
+<button class="lesson-btn btn-secondary" id="resetProgress" style="width: 100%;">
+<i class="fas fa-redo"></i> Сбросить прогресс
+</button>
+</div>
+</div>
+
+<div class="section-title">
+<i class="fas fa-chart-bar"></i>
+Статистика по блокам
+</div>
+<div id="blockStats" style="display: grid; gap: 12px;">
+<!-- Block stats will be inserted here -->
+</div>
+</div>
+</div>
+
+<!-- LESSON VIEW -->
+<div class="lesson-view" id="lessonView">
+<div class="lesson-header">
+<button class="lesson-back" id="lessonBack">
+<i class="fas fa-arrow-left"></i>
+</button>
+<div style="font-weight: 600;" id="lessonTitle">Блок 1</div>
+<div style="width: 40px;"></div>
+</div>
+<div class="lesson-content" id="lessonContent">
+<!-- Lesson content will be inserted here -->
+</div>
+</div>
+
+<!-- TEST VIEW -->
+<div class="test-view" id="testView">
+<div class="lesson-header">
+<button class="lesson-back" id="testBack">
+<i class="fas fa-arrow-left"></i>
+</button>
+<div style="font-weight: 600;">Тест</div>
+<div style="font-size: 0.9rem; color: var(--text-sec);" id="testProgress">1/10</div>
+</div>
+<div class="test-progress">
+<div class="progress-bar-bg" style="height: 6px;">
+<div class="progress-bar-fill" id="testProgressBar" style="width: 0%"></div>
+</div>
+</div>
+<div class="lesson-content">
+<div class="test-question" id="testQuestion">Вопрос...</div>
+<div class="test-options" id="testOptions">
+<!-- Options will be inserted here -->
+</div>
+<div class="test-feedback" id="testFeedback">
+<div style="font-weight: 600; margin-bottom: 8px;" id="feedbackTitle"></div>
+<div id="feedbackText"></div>
+</div>
+<button class="lesson-btn btn-primary" id="testNext" style="width: 100%; margin-top: 20px; display: none;">
+Дальше <i class="fas fa-arrow-right"></i>
+</button>
+</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+<div class="nav-item active" data-screen="homeScreen">
+<div class="nav-icon"><i class="fas fa-home"></i></div>
+<div class="nav-label">Главная</div>
+</div>
+<div class="nav-item" data-screen="referencesScreen">
+<div class="nav-icon"><i class="fas fa-book"></i></div>
+<div class="nav-label">Справочники</div>
+</div>
+<div class="nav-item" data-screen="profileScreen">
+<div class="nav-icon"><i class="fas fa-user"></i></div>
+<div class="nav-label">Профиль</div>
+</div>
+</div>
+
+<script>
+// === TELEGRAM WEB APP ===
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+// === КОНФИГУРАЦИЯ ===
+const SHEET_ID = '158E5Bv70FryY6MFPADvtXAaDgndIvzWgCkTXC8IhmnQ';
+const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}';
+
+// === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
+let appData = {
+texts: { 1: [], 2: [], 3: [], 4: [] },
+questions: { 1: [], 2: [], 3: [], 4: [] },
+menu: {},
+wine: {},
+allergens: {}
+};
+let userProgress = {
+currentBlock: 1,
+currentStep: 'text',
+textIndex: 0,
+testScores: {},
+passedBlocks: [],
+blocksLocked: {},
+testHistory: {}
+};
+let currentLesson = { block: 1, index: 0 };
+let currentTest = { block: 1, questionIndex: 0, answers: [] };
+let currentRefType = 'menu';
+
+// === ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS ===
+async function fetchSheet(sheetName) {
+const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
+try {
+const response = await fetch(url);
+const text = await response.text();
+return parseCSV(text);
+} catch (e) {
+console.error(`Failed to load ${sheetName}:`, e);
+return [];
+}
+}
+
+function parseCSV(text) {
+const lines = text.split('\n').filter(l => l.trim());
+if (lines.length < 2) return [];
+const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+return lines.slice(1).map(line => {
+const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+const obj = {};
+headers.forEach((h, i) => {
+let val = values[i] ? values[i].replace(/^"|"$/g, '').trim() : '';
+obj[h] = val;
+});
+return obj;
+});
+}
+
+async function loadAllData() {
+const [textsRows, questionsRows, menuRows, wineRows, allergensRows] = await Promise.all([
+fetchSheet('Texts'),
+fetchSheet('Questions'),
+fetchSheet('Menu'),
+fetchSheet('Wine'),
+fetchSheet('Allergens')
+]);
+
+// Texts
+textsRows.forEach(row => {
+const ch = parseInt(row.chapter) || 1;
+if (ch >= 1 && ch <= 4) {
+appData.texts[ch].push({
+text: row.text || '',
+image: row.image || ''
+});
+}
+});
+
+// Questions
+questionsRows.forEach(row => {
+const ch = parseInt(row.chapter) || 1;
+if (ch >= 1 && ch <= 4) {
+const options = [];
+for (let i = 1; i <= 10; i++) {
+const opt = row[`option_${i}`] || row[String.fromCharCode(64 + i)];
+if (opt) options.push(opt);
+}
+let correct = parseInt(row.correct) || 0;
+if (isNaN(correct) && row.correct) {
+correct = row.correct.toUpperCase().charCodeAt(0) - 65;
+}
+appData.questions[ch].push({
+question: row.question || '',
+options,
+correct,
+explanation: row.explanation || ''
+});
+});
+});
+
+// References
+menuRows.forEach(r => { if (r.key) appData.menu[r.key.toLowerCase()] = r.value; });
+wineRows.forEach(r => { if (r.key) appData.wine[r.key.toLowerCase()] = r.value; });
+allergensRows.forEach(r => { if (r.key) appData.allergens[r.key.toLowerCase()] = r.value; });
+
+console.log('Data loaded:', appData);
+}
+
+// === ПРОГРЕСС ===
+function loadProgress() {
+const saved = localStorage.getItem('ujzhan_progress');
+if (saved) {
+userProgress = { ...userProgress, ...JSON.parse(saved) };
+}
+const user = tg.initDataUnsafe?.user;
+if (user) {
+document.getElementById('profileName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+document.getElementById('profileId').textContent = `ID: ${user.id}`;
+}
+}
+
+function saveProgress() {
+localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
+// Отправка данных боту (опционально)
+// tg.sendData(JSON.stringify(userProgress));
+}
+
+function getProgressPercent() {
+const passed = userProgress.passedBlocks.length;
+return Math.round((passed / 4) * 100);
+}
+
+function updateProgressUI() {
+const percent = getProgressPercent();
+document.getElementById('progressPercent').textContent = `${percent}%`;
+document.getElementById('progressBar').style.width = `${percent}%`;
+document.getElementById('statCompleted').textContent = userProgress.passedBlocks.length;
+document.getElementById('statTests').textContent = Object.keys(userProgress.testScores).length;
+
+const scores = Object.values(userProgress.testScores);
+const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+document.getElementById('statScore').textContent = `${avgScore}%`;
+
+renderChapters();
+renderBlockStats();
+}
+
+// === РЕНДЕРИНГ ===
+function renderChapters() {
+const grid = document.getElementById('chaptersGrid');
+const chapters = [
+{ num: 1, title: 'Легенды Южан', icon: '🏠', desc: 'История и философия' },
+{ num: 2, title: 'Сервис', icon: '🤝', desc: 'Стандарты обслуживания' },
+{ num: 3, title: 'Кухня', icon: '🍳', desc: 'Меню и блюда' },
+{ num: 4, title: 'Бар и вино', icon: '🍷', desc: 'Винная карта' }
+];
+
+grid.innerHTML = chapters.map(ch => {
+const isPassed = userProgress.passedBlocks.includes(`chapter_${ch.num}`);
+const isLocked = ch.num > userProgress.currentBlock;
+const isCurrent = ch.num === userProgress.currentBlock;
+
+let statusClass = 'status-lock';
+let statusText = '🔒 Заблокировано';
+if (isPassed) { statusClass = 'status-done'; statusText = '✅ Пройдено'; }
+else if (isCurrent) { statusClass = 'status-current'; statusText = '📖 В процессе'; }
+
+const cardClass = `chapter-card ${isLocked ? 'locked' : ''} ${isPassed ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+
+return `
+<div class="${cardClass}" onclick="openChapter(${ch.num})">
+<div class="chapter-icon">${ch.icon}</div>
+<div class="chapter-info">
+<div class="chapter-title">Блок ${ch.num}: ${ch.title}</div>
+<div class="chapter-desc">${ch.desc}</div>
+</div>
+<div class="chapter-status ${statusClass}">${statusText}</div>
+</div>
+`;
+}).join('');
+}
+
+function renderBlockStats() {
+const container = document.getElementById('blockStats');
+const chapters = [
+{ num: 1, title: 'Легенды Южан' },
+{ num: 2, title: 'Сервис' },
+{ num: 3, title: 'Кухня' },
+{ num: 4, title: 'Бар и вино' }
+];
+
+container.innerHTML = chapters.map(ch => {
+const score = userProgress.testScores[`chapter_${ch.num}`] || 0;
+const total = appData.questions[ch.num]?.length || 0;
+const history = userProgress.testHistory[`chapter_${ch.num}`] || [];
+const attempts = history.length;
+
+return `
+<div class="ref-item">
+<div class="ref-item-key">Блок ${ch.num}: ${ch.title}</div>
+<div class="ref-item-value">
+Результат: ${score}/${total} (${Math.round((score/total)*100) || 0}%)<br>
+Попыток: ${attempts}
+</div>
+</div>
+`;
+}).join('');
+}
+
+function renderReferences(query = '') {
+const container = document.getElementById('refResults');
+const data = appData[currentRefType] || {};
+const entries = Object.entries(data).filter(([key]) => 
+!query || key.includes(query.toLowerCase())
+);
+
+if (entries.length === 0) {
+container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-sec);">Ничего не найдено</div>';
+return;
+}
+
+container.innerHTML = entries.slice(0, 20).map(([key, value]) => `
+<div class="ref-item">
+<div class="ref-item-key">${key}</div>
+<div class="ref-item-value">${value}</div>
+</div>
+`).join('');
+}
+
+// === НАВИГАЦИЯ ===
+function switchScreen(screenId) {
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+document.getElementById(screenId).classList.add('active');
+document.querySelector(`.nav-item[data-screen="${screenId}"]`)?.classList.add('active');
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+item.addEventListener('click', () => {
+switchScreen(item.dataset.screen);
+});
+});
+
+// === УРОКИ ===
+function openChapter(blockNum) {
+if (blockNum > userProgress.currentBlock) return;
+currentLesson = { block: blockNum, index: 0 };
+userProgress.currentBlock = blockNum;
+userProgress.currentStep = 'text';
+userProgress.textIndex = 0;
+saveProgress();
+showLesson();
+}
+
+function showLesson() {
+const view = document.getElementById('lessonView');
+const content = document.getElementById('lessonContent');
+const title = document.getElementById('lessonTitle');
+const texts = appData.texts[currentLesson.block] || [];
+const item = texts[currentLesson.index];
+
+if (!item) {
+startTest();
+return;
+}
+
+title.textContent = `Блок ${currentLesson.block} • ${currentLesson.index + 1}/${texts.length}`;
+
+let html = '';
+if (item.image && item.image.startsWith('http')) {
+html += `<img src="${item.image}" class="lesson-image" alt="Lesson image">`;
+}
+html += `<div class="lesson-text">${item.text.replace(/\n/g, '<br>')}</div>`;
+
+const isLast = currentLesson.index >= texts.length - 1;
+html += `
+<div class="lesson-nav">
+${currentLesson.index > 0 ? '<button class="lesson-btn btn-secondary" onclick="prevLesson()">← Назад</button>' : ''}
+<button class="lesson-btn btn-primary" onclick="${isLast ? 'startTest()' : 'nextLesson()'}">
+${isLast ? '📋 К тесту' : 'Дальше →'}
+</button>
+</div>
+`;
+
+content.innerHTML = html;
+view.classList.add('active');
+}
+
+function nextLesson() {
+currentLesson.index++;
+userProgress.textIndex = currentLesson.index;
+saveProgress();
+showLesson();
+}
+
+function prevLesson() {
+if (currentLesson.index > 0) {
+currentLesson.index--;
+userProgress.textIndex = currentLesson.index;
+saveProgress();
+showLesson();
+}
+}
+
+function closeLesson() {
+document.getElementById('lessonView').classList.remove('active');
+}
+
+document.getElementById('lessonBack').addEventListener('click', closeLesson);
+
+// === ТЕСТЫ ===
+function startTest() {
+currentTest = {
+block: currentLesson.block,
+questionIndex: 0,
+answers: []
+};
+showTestQuestion();
+document.getElementById('lessonView').classList.remove('active');
+document.getElementById('testView').classList.add('active');
+}
+
+function showTestQuestion() {
+const questions = appData.questions[currentTest.block] || [];
+if (currentTest.questionIndex >= questions.length) {
+finishTest();
+return;
+}
+
+const q = questions[currentTest.questionIndex];
+const progress = ((currentTest.questionIndex) / questions.length) * 100;
+
+document.getElementById('testProgress').textContent = `${currentTest.questionIndex + 1}/${questions.length}`;
+document.getElementById('testProgressBar').style.width = `${progress}%`;
+document.getElementById('testQuestion').textContent = `❓ ${q.question}`;
+
+const optionsHtml = q.options.map((opt, i) => `
+<div class="test-option" onclick="selectAnswer(${i})">
+${String.fromCharCode(65 + i)}) ${opt}
+</div>
+`).join('');
+
+document.getElementById('testOptions').innerHTML = optionsHtml;
+document.getElementById('testFeedback').classList.remove('show');
+document.getElementById('testNext').style.display = 'none';
+}
+
+function selectAnswer(index) {
+const questions = appData.questions[currentTest.block] || [];
+const q = questions[currentTest.questionIndex];
+const options = document.querySelectorAll('.test-option');
+
+options.forEach((opt, i) => {
+opt.classList.remove('selected', 'correct', 'wrong');
+if (i === index) opt.classList.add('selected');
+if (i === q.correct) opt.classList.add('correct');
+if (i === index && i !== q.correct) opt.classList.add('wrong');
+});
+
+const isCorrect = index === q.correct;
+currentTest.answers.push({ questionIndex: currentTest.questionIndex, correct: isCorrect });
+
+const feedback = document.getElementById('testFeedback');
+document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Правильно!' : '❌ Ошибка';
+document.getElementById('feedbackText').textContent = q.explanation;
+feedback.classList.add('show');
+
+document.getElementById('testNext').style.display = 'block';
+}
+
+document.getElementById('testNext').addEventListener('click', () => {
+currentTest.questionIndex++;
+showTestQuestion();
+});
+
+function finishTest() {
+const questions = appData.questions[currentTest.block] || [];
+const correct = currentTest.answers.filter(a => a.correct).length;
+const total = questions.length;
+const score = Math.round((correct / total) * 100);
+const passed = score >= 80;
+
+userProgress.testScores[`chapter_${currentTest.block}`] = correct;
+
+if (!userProgress.testHistory[`chapter_${currentTest.block}`]) {
+userProgress.testHistory[`chapter_${currentTest.block}`] = [];
+}
+userProgress.testHistory[`chapter_${currentTest.block}`].push({
+timestamp: new Date().toISOString(),
+score: correct,
+total,
+passed
+});
+
+if (passed) {
+if (!userProgress.passedBlocks.includes(`chapter_${currentTest.block}`)) {
+userProgress.passedBlocks.push(`chapter_${currentTest.block}`);
+}
+if (currentTest.block === userProgress.currentBlock && currentTest.block < 4) {
+userProgress.currentBlock++;
+}
+}
+
+saveProgress();
+updateProgressUI();
+
+document.getElementById('testView').classList.remove('active');
+
+const resultMsg = passed 
+? `🎉 Блок ${currentTest.block} пройден! ${correct}/${total}`
+: `❌ Не пройдено. Нужно 80%. Ваш результат: ${correct}/${total}`;
+
+tg.showAlert(resultMsg);
+}
+
+document.getElementById('testBack').addEventListener('click', () => {
+document.getElementById('testView').classList.remove('active');
+});
+
+// === СПРАВОЧНИКИ ===
+document.querySelectorAll('.ref-card').forEach(card => {
+card.addEventListener('click', () => {
+currentRefType = card.dataset.type;
+document.getElementById('refResultsTitle').innerHTML = `<i class="fas fa-list"></i> ${card.querySelector('.ref-title').textContent}`;
+renderReferences();
+});
+});
+
+document.getElementById('refSearch').addEventListener('input', (e) => {
+renderReferences(e.target.value);
+});
+
+// === ТЕМА ===
+const themeBtn = document.getElementById('themeToggle');
+themeBtn.addEventListener('click', () => {
+const body = document.body;
+const isDark = body.getAttribute('data-theme') === 'dark';
+const icon = themeBtn.querySelector('i');
+if (isDark) {
+body.removeAttribute('data-theme');
+icon.className = 'fas fa-moon';
+} else {
+body.setAttribute('data-theme', 'dark');
+icon.className = 'fas fa-sun';
+}
+});
+
+// === СБРОС ПРОГРЕССА ===
+document.getElementById('resetProgress').addEventListener('click', () => {
+tg.showConfirm('Сбросить весь прогресс?', (confirmed) => {
+if (confirmed) {
+userProgress = {
+currentBlock: 1,
+currentStep: 'text',
+textIndex: 0,
+testScores: {},
+passedBlocks: [],
+blocksLocked: {},
+testHistory: {}
+};
+saveProgress();
+updateProgressUI();
+tg.showAlert('Прогресс сброшен!');
+}
+});
+});
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+async function init() {
+loadProgress();
+await loadAllData();
+updateProgressUI();
+renderReferences();
+
+// Сертификат при полном прохождении
+if (userProgress.passedBlocks.length === 4) {
+document.getElementById('certificateContainer').innerHTML = `
+<div class="certificate">
+<div class="certificate-title">🏆 СЕРТИФИКАТ ЮЖАНИНА</div>
+<div>Выдан: ${new Date().toLocaleDateString('ru-RU')}</div>
+<div class="certificate-date">✅ Все 4 блока пройдены</div>
+</div>
+`;
+}
+
+setTimeout(() => {
+document.getElementById('loading').classList.add('hidden');
+}, 1000);
+}
+
+init();
+</script>
+</body>
+</html>
