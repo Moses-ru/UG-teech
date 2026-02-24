@@ -292,6 +292,13 @@ transition: opacity 0.5s ease;
 .loading.hidden { opacity: 0; pointer-events: none; }
 .loading-icon { font-size: 3rem; color: var(--primary); margin-bottom: 20px; animation: pulse 1.5s infinite; }
 .loading-text { font-size: 1.1rem; color: var(--text-sec); }
+.loading-error { 
+font-size: 0.9rem; 
+color: #e74c3c; 
+margin-top: 20px; 
+text-align: center;
+max-width: 80%;
+}
 @keyframes pulse {
 0%, 100% { transform: scale(1); opacity: 1; }
 50% { transform: scale(1.1); opacity: 0.7; }
@@ -325,6 +332,7 @@ margin-bottom: 20px;
 <div class="loading" id="loading">
 <div class="loading-icon"><i class="fas fa-graduation-cap"></i></div>
 <div class="loading-text">Загрузка обучения...</div>
+<div class="loading-error" id="loadingError"></div>
 </div>
 
 <!-- HEADER -->
@@ -516,14 +524,27 @@ tg.expand();
 const SHEET_ID = '158E5Bv70FryY6MFPADvtXAaDgndIvzWgCkTXC8IhmnQ';
 const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}';
 
-// === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
-let appData = {
-texts: { 1: [], 2: [], 3: [], 4: [] },
-questions: { 1: [], 2: [], 3: [], 4: [] },
-menu: {},
-wine: {},
-allergens: {}
+// === FALLBACK ДАННЫЕ (если Google Sheets не загрузится) ===
+const FALLBACK_DATA = {
+texts: {
+1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это не просто число. Это эталон хинкали с 18 складками. Именно столько лет должно быть гостю, чтобы оценить нашу кухню.", image: "" }],
+2: [{ text: "🤝 СЕРВИС\n\nГость всегда прав. Даже когда не прав.", image: "" }],
+3: [{ text: "🍳 КУХНЯ\n\nХинкали едят руками. Вилка — табу.", image: "" }],
+4: [{ text: "🍷 БАР И ВИНО\n\nВино подбирается под блюдо, а не наоборот.", image: "" }]
+},
+questions: {
+1: [{ question: "Почему 18+?", options: ["Это цензура", "Эталон хинкали", "Просто красивое число"], correct: 1, explanation: "Эталон хинкали — 18 складок" }],
+2: [{ question: "Гость всегда прав?", options: ["Да", "Нет", "Иногда"], correct: 0, explanation: "Даже когда не прав!" }],
+3: [{ question: "Чем едят хинкали?", options: ["Вилкой", "Ножом", "Руками"], correct: 2, explanation: "Только руками!" }],
+4: [{ question: "Как подбирают вино?", options: ["Под блюдо", "Случайно", "По цене"], correct: 0, explanation: "Вино под блюдо!" }]
+},
+menu: { "хинкали": "🥟 18 складок, едят руками", "хачапури": "🧀 Сыр, тесто, любовь" },
+wine: { "стейк": "🍷 Красное сухое", "рыба": "🥂 Белое сухое" },
+allergens: { "орехи": "⚠️ Содержит орехи", "глютен": "⚠️ Содержит глютен" }
 };
+
+// === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
+let appData = { texts: {}, questions: {}, menu: {}, wine: {}, allergens: {} };
 let userProgress = {
 currentBlock: 1,
 currentStep: 'text',
@@ -538,15 +559,23 @@ let currentTest = { block: 1, questionIndex: 0, answers: [] };
 let currentRefType = 'menu';
 
 // === ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS ===
-async function fetchSheet(sheetName) {
+async function fetchSheet(sheetName, timeout = 5000) {
 const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
+
+const controller = new AbortController();
+const id = setTimeout(() => controller.abort(), timeout);
+
 try {
-const response = await fetch(url);
+const response = await fetch(url, { signal: controller.signal });
+clearTimeout(id);
+
+if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
 const text = await response.text();
 return parseCSV(text);
 } catch (e) {
-console.error(`Failed to load ${sheetName}:`, e);
-return [];
+console.warn(`Failed to load ${sheetName}:`, e.message);
+return null;
 }
 }
 
@@ -574,18 +603,26 @@ fetchSheet('Wine'),
 fetchSheet('Allergens')
 ]);
 
+let loaded = false;
+
 // Texts
+if (textsRows && textsRows.length > 0) {
+loaded = true;
 textsRows.forEach(row => {
 const ch = parseInt(row.chapter) || 1;
 if (ch >= 1 && ch <= 4) {
+if (!appData.texts[ch]) appData.texts[ch] = [];
 appData.texts[ch].push({
 text: row.text || '',
 image: row.image || ''
 });
 }
 });
+}
 
 // Questions
+if (questionsRows && questionsRows.length > 0) {
+loaded = true;
 questionsRows.forEach(row => {
 const ch = parseInt(row.chapter) || 1;
 if (ch >= 1 && ch <= 4) {
@@ -598,19 +635,47 @@ let correct = parseInt(row.correct) || 0;
 if (isNaN(correct) && row.correct) {
 correct = row.correct.toUpperCase().charCodeAt(0) - 65;
 }
+if (!appData.questions[ch]) appData.questions[ch] = [];
 appData.questions[ch].push({
 question: row.question || '',
 options,
 correct,
 explanation: row.explanation || ''
 });
+}
 });
-});
+}
 
 // References
+if (menuRows && menuRows.length > 0) {
+loaded = true;
 menuRows.forEach(r => { if (r.key) appData.menu[r.key.toLowerCase()] = r.value; });
+}
+if (wineRows && wineRows.length > 0) {
+loaded = true;
 wineRows.forEach(r => { if (r.key) appData.wine[r.key.toLowerCase()] = r.value; });
+}
+if (allergensRows && allergensRows.length > 0) {
+loaded = true;
 allergensRows.forEach(r => { if (r.key) appData.allergens[r.key.toLowerCase()] = r.value; });
+}
+
+// Если ничего не загрузилось — используем fallback
+if (!loaded) {
+console.warn('Using fallback data');
+appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+document.getElementById('loadingError').innerHTML = '⚠️ Google Sheets недоступны<br>Используются тестовые данные';
+} else {
+// Merge с fallback для пустых блоков
+for (let ch = 1; ch <= 4; ch++) {
+if (!appData.texts[ch] || appData.texts[ch].length === 0) {
+appData.texts[ch] = FALLBACK_DATA.texts[ch] || [];
+}
+if (!appData.questions[ch] || appData.questions[ch].length === 0) {
+appData.questions[ch] = FALLBACK_DATA.questions[ch] || [];
+}
+}
+}
 
 console.log('Data loaded:', appData);
 }
@@ -630,8 +695,6 @@ document.getElementById('profileId').textContent = `ID: ${user.id}`;
 
 function saveProgress() {
 localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
-// Отправка данных боту (опционально)
-// tg.sendData(JSON.stringify(userProgress));
 }
 
 function getProgressPercent() {
@@ -977,7 +1040,15 @@ tg.showAlert('Прогресс сброшен!');
 // === ИНИЦИАЛИЗАЦИЯ ===
 async function init() {
 loadProgress();
+
+try {
 await loadAllData();
+} catch (e) {
+console.error('Init error:', e);
+appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+document.getElementById('loadingError').innerHTML = '⚠️ Ошибка загрузки<br>Используются тестовые данные';
+}
+
 updateProgressUI();
 renderReferences();
 
