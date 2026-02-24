@@ -524,548 +524,616 @@ tg.expand();
 const SHEET_ID = '158E5Bv70FryY6MFPADvtXAaDgndIvzWgCkTXC8IhmnQ';
 const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}';
 
-// === FALLBACK ДАННЫЕ (если Google Sheets не загрузится) ===
+// === ИСПРАВЛЕННЫЙ CSV ПАРСЕР ===
+// Правильно обрабатывает кавычки, запятые внутри текста и переносы строк
+function parseCSV(text) {
+    const rows = [];
+    let currentRow = [];
+    let currentCell = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        
+        if (inQuotes) {
+            if (char === '"') {
+                if (nextChar === '"') {
+                    // Экранированная кавычка ""
+                    currentCell += '"';
+                    i++;
+                } else {
+                    // Конец цитирования
+                    inQuotes = false;
+                }
+            } else {
+                currentCell += char;
+            }
+        } else {
+            if (char === '"') {
+                // Начало цитирования
+                inQuotes = true;
+            } else if (char === ',') {
+                // Конец ячейки
+                currentRow.push(currentCell.trim());
+                currentCell = '';
+            } else if (char === '\n') {
+                // Конец строки
+                currentRow.push(currentCell.trim());
+                if (currentRow.length > 0 && currentRow.some(c => c !== '')) {
+                    rows.push(currentRow);
+                }
+                currentRow = [];
+                currentCell = '';
+            } else if (char !== '\r') {
+                currentCell += char;
+            }
+        }
+    }
+    
+    // Последняя ячейка
+    if (currentCell || currentRow.length > 0) {
+        currentRow.push(currentCell.trim());
+        if (currentRow.some(c => c !== '')) {
+            rows.push(currentRow);
+        }
+    }
+    
+    // Преобразуем в объекты
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+    
+    return rows.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => {
+            obj[h] = row[i] || '';
+        });
+        return obj;
+    });
+}
+
+// === FALLBACK ДАННЫЕ ===
 const FALLBACK_DATA = {
-texts: {
-1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это не просто число. Это эталон хинкали с 18 складками. Именно столько лет должно быть гостю, чтобы оценить нашу кухню.", image: "" }],
-2: [{ text: "🤝 СЕРВИС\n\nГость всегда прав. Даже когда не прав.", image: "" }],
-3: [{ text: "🍳 КУХНЯ\n\nХинкали едят руками. Вилка — табу.", image: "" }],
-4: [{ text: "🍷 БАР И ВИНО\n\nВино подбирается под блюдо, а не наоборот.", image: "" }]
-},
-questions: {
-1: [{ question: "Почему 18+?", options: ["Это цензура", "Эталон хинкали", "Просто красивое число"], correct: 1, explanation: "Эталон хинкали — 18 складок" }],
-2: [{ question: "Гость всегда прав?", options: ["Да", "Нет", "Иногда"], correct: 0, explanation: "Даже когда не прав!" }],
-3: [{ question: "Чем едят хинкали?", options: ["Вилкой", "Ножом", "Руками"], correct: 2, explanation: "Только руками!" }],
-4: [{ question: "Как подбирают вино?", options: ["Под блюдо", "Случайно", "По цене"], correct: 0, explanation: "Вино под блюдо!" }]
-},
-menu: { "хинкали": "🥟 18 складок, едят руками", "хачапури": "🧀 Сыр, тесто, любовь" },
-wine: { "стейк": "🍷 Красное сухое", "рыба": "🥂 Белое сухое" },
-allergens: { "орехи": "⚠️ Содержит орехи", "глютен": "⚠️ Содержит глютен" }
+    texts: {
+        1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это не просто число. Это эталон хинкали с 18 складками.", image: "" }],
+        2: [{ text: "🤝 СЕРВИС\n\nГость всегда прав. Даже когда не прав.", image: "" }],
+        3: [{ text: "🍳 КУХНЯ\n\nХинкали едят руками. Вилка — табу.", image: "" }],
+        4: [{ text: "🍷 БАР И ВИНО\n\nВино подбирается под блюдо, а не наоборот.", image: "" }]
+    },
+    questions: {
+        1: [{ question: "Почему 18+?", options: ["Это цензура", "Эталон хинкали", "Просто красивое число"], correct: 1, explanation: "Эталон хинкали — 18 складок" }],
+        2: [{ question: "Гость всегда прав?", options: ["Да", "Нет", "Иногда"], correct: 0, explanation: "Даже когда не прав!" }],
+        3: [{ question: "Чем едят хинкали?", options: ["Вилкой", "Ножом", "Руками"], correct: 2, explanation: "Только руками!" }],
+        4: [{ question: "Как подбирают вино?", options: ["Под блюдо", "Случайно", "По цене"], correct: 0, explanation: "Вино под блюдо!" }]
+    },
+    menu: { "хинкали": "🥟 18 складок, едят руками", "хачапури": "🧀 Сыр, тесто, любовь" },
+    wine: { "стейк": "🍷 Красное сухое", "рыба": "🥂 Белое сухое" },
+    allergens: { "орехи": "⚠️ Содержит орехи", "глютен": "⚠️ Содержит глютен" }
 };
 
 // === ГЛОБАЛЬНЫЕ ДАННЫЕ ===
 let appData = { texts: {}, questions: {}, menu: {}, wine: {}, allergens: {} };
 let userProgress = {
-currentBlock: 1,
-currentStep: 'text',
-textIndex: 0,
-testScores: {},
-passedBlocks: [],
-blocksLocked: {},
-testHistory: {}
+    currentBlock: 1,
+    currentStep: 'text',
+    textIndex: 0,
+    testScores: {},
+    passedBlocks: [],
+    blocksLocked: {},
+    testHistory: {}
 };
 let currentLesson = { block: 1, index: 0 };
 let currentTest = { block: 1, questionIndex: 0, answers: [] };
 let currentRefType = 'menu';
 
-// === ЗАГРУЗКА ДАННЫХ ИЗ GOOGLE SHEETS ===
-async function fetchSheet(sheetName, timeout = 5000) {
-const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
-
-const controller = new AbortController();
-const id = setTimeout(() => controller.abort(), timeout);
-
-try {
-const response = await fetch(url, { signal: controller.signal });
-clearTimeout(id);
-
-if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-const text = await response.text();
-return parseCSV(text);
-} catch (e) {
-console.warn(`Failed to load ${sheetName}:`, e.message);
-return null;
-}
-}
-
-function parseCSV(text) {
-const lines = text.split('\n').filter(l => l.trim());
-if (lines.length < 2) return [];
-const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-return lines.slice(1).map(line => {
-const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-const obj = {};
-headers.forEach((h, i) => {
-let val = values[i] ? values[i].replace(/^"|"$/g, '').trim() : '';
-obj[h] = val;
-});
-return obj;
-});
+// === ЗАГРУЗКА ДАННЫХ ===
+async function fetchSheet(sheetName, timeout = 10000) {
+    const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        return parseCSV(text);
+    } catch (e) {
+        console.warn(`Failed to load ${sheetName}:`, e.message);
+        return null;
+    }
 }
 
 async function loadAllData() {
-const [textsRows, questionsRows, menuRows, wineRows, allergensRows] = await Promise.all([
-fetchSheet('Texts'),
-fetchSheet('Questions'),
-fetchSheet('Menu'),
-fetchSheet('Wine'),
-fetchSheet('Allergens')
-]);
-
-let loaded = false;
-
-// Texts
-if (textsRows && textsRows.length > 0) {
-loaded = true;
-textsRows.forEach(row => {
-const ch = parseInt(row.chapter) || 1;
-if (ch >= 1 && ch <= 4) {
-if (!appData.texts[ch]) appData.texts[ch] = [];
-appData.texts[ch].push({
-text: row.text || '',
-image: row.image || ''
-});
-}
-});
-}
-
-// Questions
-if (questionsRows && questionsRows.length > 0) {
-loaded = true;
-questionsRows.forEach(row => {
-const ch = parseInt(row.chapter) || 1;
-if (ch >= 1 && ch <= 4) {
-const options = [];
-for (let i = 1; i <= 10; i++) {
-const opt = row[`option_${i}`] || row[String.fromCharCode(64 + i)];
-if (opt) options.push(opt);
-}
-let correct = parseInt(row.correct) || 0;
-if (isNaN(correct) && row.correct) {
-correct = row.correct.toUpperCase().charCodeAt(0) - 65;
-}
-if (!appData.questions[ch]) appData.questions[ch] = [];
-appData.questions[ch].push({
-question: row.question || '',
-options,
-correct,
-explanation: row.explanation || ''
-});
-}
-});
-}
-
-// References
-if (menuRows && menuRows.length > 0) {
-loaded = true;
-menuRows.forEach(r => { if (r.key) appData.menu[r.key.toLowerCase()] = r.value; });
-}
-if (wineRows && wineRows.length > 0) {
-loaded = true;
-wineRows.forEach(r => { if (r.key) appData.wine[r.key.toLowerCase()] = r.value; });
-}
-if (allergensRows && allergensRows.length > 0) {
-loaded = true;
-allergensRows.forEach(r => { if (r.key) appData.allergens[r.key.toLowerCase()] = r.value; });
-}
-
-// Если ничего не загрузилось — используем fallback
-if (!loaded) {
-console.warn('Using fallback data');
-appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
-document.getElementById('loadingError').innerHTML = '⚠️ Google Sheets недоступны<br>Используются тестовые данные';
-} else {
-// Merge с fallback для пустых блоков
-for (let ch = 1; ch <= 4; ch++) {
-if (!appData.texts[ch] || appData.texts[ch].length === 0) {
-appData.texts[ch] = FALLBACK_DATA.texts[ch] || [];
-}
-if (!appData.questions[ch] || appData.questions[ch].length === 0) {
-appData.questions[ch] = FALLBACK_DATA.questions[ch] || [];
-}
-}
-}
-
-console.log('Data loaded:', appData);
+    const [textsRows, questionsRows, menuRows, wineRows, allergensRows] = await Promise.all([
+        fetchSheet('Texts'),
+        fetchSheet('Questions'),
+        fetchSheet('Menu'),
+        fetchSheet('Wine'),
+        fetchSheet('Allergens')
+    ]);
+    
+    let loaded = false;
+    
+    // Texts
+    if (textsRows && textsRows.length > 0) {
+        loaded = true;
+        textsRows.forEach(row => {
+            const ch = parseInt(row.chapter) || 1;
+            if (ch >= 1 && ch <= 4) {
+                if (!appData.texts[ch]) appData.texts[ch] = [];
+                appData.texts[ch].push({
+                    text: row.text || '',
+                    image: row.image || ''
+                });
+            }
+        });
+    }
+    
+    // Questions
+    if (questionsRows && questionsRows.length > 0) {
+        loaded = true;
+        questionsRows.forEach(row => {
+            const ch = parseInt(row.chapter) || 1;
+            if (ch >= 1 && ch <= 4) {
+                const options = [];
+                for (let i = 1; i <= 10; i++) {
+                    const opt = row[`option_${i}`] || row[String.fromCharCode(64 + i).toLowerCase()];
+                    if (opt) options.push(opt);
+                }
+                let correct = parseInt(row.correct) || 0;
+                if (isNaN(correct) && row.correct) {
+                    correct = row.correct.toUpperCase().charCodeAt(0) - 65;
+                }
+                if (!appData.questions[ch]) appData.questions[ch] = [];
+                appData.questions[ch].push({
+                    question: row.question || '',
+                    options,
+                    correct,
+                    explanation: row.explanation || ''
+                });
+            }
+        });
+    }
+    
+    // References
+    if (menuRows && menuRows.length > 0) {
+        loaded = true;
+        menuRows.forEach(r => { 
+            const key = (r.key || '').toLowerCase().trim();
+            const val = r.value || '';
+            if (key && val) appData.menu[key] = val; 
+        });
+    }
+    if (wineRows && wineRows.length > 0) {
+        loaded = true;
+        wineRows.forEach(r => { 
+            const key = (r.key || '').toLowerCase().trim();
+            const val = r.value || '';
+            if (key && val) appData.wine[key] = val; 
+        });
+    }
+    if (allergensRows && allergensRows.length > 0) {
+        loaded = true;
+        allergensRows.forEach(r => { 
+            const key = (r.key || '').toLowerCase().trim();
+            const val = r.value || '';
+            if (key && val) appData.allergens[key] = val; 
+        });
+    }
+    
+    // Fallback если пусто
+    if (!loaded) {
+        console.warn('Using fallback data');
+        appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+        document.getElementById('loadingError').innerHTML = '⚠️ Google Sheets недоступны<br>Используются тестовые данные';
+    } else {
+        // Merge с fallback для пустых блоков
+        for (let ch = 1; ch <= 4; ch++) {
+            if (!appData.texts[ch] || appData.texts[ch].length === 0) {
+                appData.texts[ch] = FALLBACK_DATA.texts[ch] || [];
+            }
+            if (!appData.questions[ch] || appData.questions[ch].length === 0) {
+                appData.questions[ch] = FALLBACK_DATA.questions[ch] || [];
+            }
+        }
+    }
+    
+    console.log('Data loaded:', {
+        texts: Object.keys(appData.texts).map(k => `${k}:${appData.texts[k].length}`),
+        questions: Object.keys(appData.questions).map(k => `${k}:${appData.questions[k].length}`),
+        menu: Object.keys(appData.menu).length,
+        wine: Object.keys(appData.wine).length,
+        allergens: Object.keys(appData.allergens).length
+    });
 }
 
 // === ПРОГРЕСС ===
 function loadProgress() {
-const saved = localStorage.getItem('ujzhan_progress');
-if (saved) {
-userProgress = { ...userProgress, ...JSON.parse(saved) };
-}
-const user = tg.initDataUnsafe?.user;
-if (user) {
-document.getElementById('profileName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-document.getElementById('profileId').textContent = `ID: ${user.id}`;
-}
+    const saved = localStorage.getItem('ujzhan_progress');
+    if (saved) {
+        userProgress = { ...userProgress, ...JSON.parse(saved) };
+    }
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.getElementById('profileName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+        document.getElementById('profileId').textContent = `ID: ${user.id}`;
+    }
 }
 
 function saveProgress() {
-localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
+    localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
 }
 
 function getProgressPercent() {
-const passed = userProgress.passedBlocks.length;
-return Math.round((passed / 4) * 100);
+    const passed = userProgress.passedBlocks.length;
+    return Math.round((passed / 4) * 100);
 }
 
 function updateProgressUI() {
-const percent = getProgressPercent();
-document.getElementById('progressPercent').textContent = `${percent}%`;
-document.getElementById('progressBar').style.width = `${percent}%`;
-document.getElementById('statCompleted').textContent = userProgress.passedBlocks.length;
-document.getElementById('statTests').textContent = Object.keys(userProgress.testScores).length;
-
-const scores = Object.values(userProgress.testScores);
-const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-document.getElementById('statScore').textContent = `${avgScore}%`;
-
-renderChapters();
-renderBlockStats();
+    const percent = getProgressPercent();
+    document.getElementById('progressPercent').textContent = `${percent}%`;
+    document.getElementById('progressBar').style.width = `${percent}%`;
+    document.getElementById('statCompleted').textContent = userProgress.passedBlocks.length;
+    document.getElementById('statTests').textContent = Object.keys(userProgress.testScores).length;
+    
+    const scores = Object.values(userProgress.testScores);
+    const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    document.getElementById('statScore').textContent = `${avgScore}%`;
+    
+    renderChapters();
+    renderBlockStats();
 }
 
 // === РЕНДЕРИНГ ===
 function renderChapters() {
-const grid = document.getElementById('chaptersGrid');
-const chapters = [
-{ num: 1, title: 'Легенды Южан', icon: '🏠', desc: 'История и философия' },
-{ num: 2, title: 'Сервис', icon: '🤝', desc: 'Стандарты обслуживания' },
-{ num: 3, title: 'Кухня', icon: '🍳', desc: 'Меню и блюда' },
-{ num: 4, title: 'Бар и вино', icon: '🍷', desc: 'Винная карта' }
-];
-
-grid.innerHTML = chapters.map(ch => {
-const isPassed = userProgress.passedBlocks.includes(`chapter_${ch.num}`);
-const isLocked = ch.num > userProgress.currentBlock;
-const isCurrent = ch.num === userProgress.currentBlock;
-
-let statusClass = 'status-lock';
-let statusText = '🔒 Заблокировано';
-if (isPassed) { statusClass = 'status-done'; statusText = '✅ Пройдено'; }
-else if (isCurrent) { statusClass = 'status-current'; statusText = '📖 В процессе'; }
-
-const cardClass = `chapter-card ${isLocked ? 'locked' : ''} ${isPassed ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
-
-return `
-<div class="${cardClass}" onclick="openChapter(${ch.num})">
-<div class="chapter-icon">${ch.icon}</div>
-<div class="chapter-info">
-<div class="chapter-title">Блок ${ch.num}: ${ch.title}</div>
-<div class="chapter-desc">${ch.desc}</div>
-</div>
-<div class="chapter-status ${statusClass}">${statusText}</div>
-</div>
-`;
-}).join('');
+    const grid = document.getElementById('chaptersGrid');
+    const chapters = [
+        { num: 1, title: 'Легенды Южан', icon: '🏠', desc: 'История и философия' },
+        { num: 2, title: 'Сервис', icon: '🤝', desc: 'Стандарты обслуживания' },
+        { num: 3, title: 'Кухня', icon: '🍳', desc: 'Меню и блюда' },
+        { num: 4, title: 'Бар и вино', icon: '🍷', desc: 'Винная карта' }
+    ];
+    
+    grid.innerHTML = chapters.map(ch => {
+        const isPassed = userProgress.passedBlocks.includes(`chapter_${ch.num}`);
+        const isLocked = ch.num > userProgress.currentBlock;
+        const isCurrent = ch.num === userProgress.currentBlock;
+        
+        let statusClass = 'status-lock';
+        let statusText = '🔒 Заблокировано';
+        if (isPassed) { statusClass = 'status-done'; statusText = '✅ Пройдено'; }
+        else if (isCurrent) { statusClass = 'status-current'; statusText = '📖 В процессе'; }
+        
+        const cardClass = `chapter-card ${isLocked ? 'locked' : ''} ${isPassed ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+        
+        return `
+        <div class="${cardClass}" onclick="openChapter(${ch.num})">
+            <div class="chapter-icon">${ch.icon}</div>
+            <div class="chapter-info">
+                <div class="chapter-title">Блок ${ch.num}: ${ch.title}</div>
+                <div class="chapter-desc">${ch.desc}</div>
+            </div>
+            <div class="chapter-status ${statusClass}">${statusText}</div>
+        </div>
+        `;
+    }).join('');
 }
 
 function renderBlockStats() {
-const container = document.getElementById('blockStats');
-const chapters = [
-{ num: 1, title: 'Легенды Южан' },
-{ num: 2, title: 'Сервис' },
-{ num: 3, title: 'Кухня' },
-{ num: 4, title: 'Бар и вино' }
-];
-
-container.innerHTML = chapters.map(ch => {
-const score = userProgress.testScores[`chapter_${ch.num}`] || 0;
-const total = appData.questions[ch.num]?.length || 0;
-const history = userProgress.testHistory[`chapter_${ch.num}`] || [];
-const attempts = history.length;
-
-return `
-<div class="ref-item">
-<div class="ref-item-key">Блок ${ch.num}: ${ch.title}</div>
-<div class="ref-item-value">
-Результат: ${score}/${total} (${Math.round((score/total)*100) || 0}%)<br>
-Попыток: ${attempts}
-</div>
-</div>
-`;
-}).join('');
+    const container = document.getElementById('blockStats');
+    const chapters = [
+        { num: 1, title: 'Легенды Южан' },
+        { num: 2, title: 'Сервис' },
+        { num: 3, title: 'Кухня' },
+        { num: 4, title: 'Бар и вино' }
+    ];
+    
+    container.innerHTML = chapters.map(ch => {
+        const score = userProgress.testScores[`chapter_${ch.num}`] || 0;
+        const total = appData.questions[ch.num]?.length || 0;
+        const history = userProgress.testHistory[`chapter_${ch.num}`] || [];
+        const attempts = history.length;
+        
+        return `
+        <div class="ref-item">
+            <div class="ref-item-key">Блок ${ch.num}: ${ch.title}</div>
+            <div class="ref-item-value">
+                Результат: ${score}/${total} (${Math.round((score/total)*100) || 0}%)<br>
+                Попыток: ${attempts}
+            </div>
+        </div>
+        `;
+    }).join('');
 }
 
 function renderReferences(query = '') {
-const container = document.getElementById('refResults');
-const data = appData[currentRefType] || {};
-const entries = Object.entries(data).filter(([key]) => 
-!query || key.includes(query.toLowerCase())
-);
-
-if (entries.length === 0) {
-container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-sec);">Ничего не найдено</div>';
-return;
-}
-
-container.innerHTML = entries.slice(0, 20).map(([key, value]) => `
-<div class="ref-item">
-<div class="ref-item-key">${key}</div>
-<div class="ref-item-value">${value}</div>
-</div>
-`).join('');
+    const container = document.getElementById('refResults');
+    const data = appData[currentRefType] || {};
+    const entries = Object.entries(data).filter(([key]) => 
+        !query || key.includes(query.toLowerCase())
+    );
+    
+    if (entries.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-sec);">Ничего не найдено</div>';
+        return;
+    }
+    
+    container.innerHTML = entries.slice(0, 50).map(([key, value]) => `
+    <div class="ref-item">
+        <div class="ref-item-key">${key}</div>
+        <div class="ref-item-value">${value}</div>
+    </div>
+    `).join('');
 }
 
 // === НАВИГАЦИЯ ===
 function switchScreen(screenId) {
-document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-document.getElementById(screenId).classList.add('active');
-document.querySelector(`.nav-item[data-screen="${screenId}"]`)?.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    document.querySelector(`.nav-item[data-screen="${screenId}"]`)?.classList.add('active');
 }
 
 document.querySelectorAll('.nav-item').forEach(item => {
-item.addEventListener('click', () => {
-switchScreen(item.dataset.screen);
-});
+    item.addEventListener('click', () => {
+        switchScreen(item.dataset.screen);
+    });
 });
 
 // === УРОКИ ===
 function openChapter(blockNum) {
-if (blockNum > userProgress.currentBlock) return;
-currentLesson = { block: blockNum, index: 0 };
-userProgress.currentBlock = blockNum;
-userProgress.currentStep = 'text';
-userProgress.textIndex = 0;
-saveProgress();
-showLesson();
+    if (blockNum > userProgress.currentBlock) return;
+    currentLesson = { block: blockNum, index: 0 };
+    userProgress.currentBlock = blockNum;
+    userProgress.currentStep = 'text';
+    userProgress.textIndex = 0;
+    saveProgress();
+    showLesson();
 }
 
 function showLesson() {
-const view = document.getElementById('lessonView');
-const content = document.getElementById('lessonContent');
-const title = document.getElementById('lessonTitle');
-const texts = appData.texts[currentLesson.block] || [];
-const item = texts[currentLesson.index];
-
-if (!item) {
-startTest();
-return;
-}
-
-title.textContent = `Блок ${currentLesson.block} • ${currentLesson.index + 1}/${texts.length}`;
-
-let html = '';
-if (item.image && item.image.startsWith('http')) {
-html += `<img src="${item.image}" class="lesson-image" alt="Lesson image">`;
-}
-html += `<div class="lesson-text">${item.text.replace(/\n/g, '<br>')}</div>`;
-
-const isLast = currentLesson.index >= texts.length - 1;
-html += `
-<div class="lesson-nav">
-${currentLesson.index > 0 ? '<button class="lesson-btn btn-secondary" onclick="prevLesson()">← Назад</button>' : ''}
-<button class="lesson-btn btn-primary" onclick="${isLast ? 'startTest()' : 'nextLesson()'}">
-${isLast ? '📋 К тесту' : 'Дальше →'}
-</button>
-</div>
-`;
-
-content.innerHTML = html;
-view.classList.add('active');
+    const view = document.getElementById('lessonView');
+    const content = document.getElementById('lessonContent');
+    const title = document.getElementById('lessonTitle');
+    const texts = appData.texts[currentLesson.block] || [];
+    const item = texts[currentLesson.index];
+    
+    if (!item) {
+        startTest();
+        return;
+    }
+    
+    title.textContent = `Блок ${currentLesson.block} • ${currentLesson.index + 1}/${texts.length}`;
+    
+    let html = '';
+    if (item.image && item.image.startsWith('http')) {
+        html += `<img src="${item.image}" class="lesson-image" alt="Lesson image">`;
+    }
+    html += `<div class="lesson-text">${item.text.replace(/\n/g, '<br>')}</div>`;
+    
+    const isLast = currentLesson.index >= texts.length - 1;
+    html += `
+    <div class="lesson-nav">
+        ${currentLesson.index > 0 ? '<button class="lesson-btn btn-secondary" onclick="prevLesson()">← Назад</button>' : ''}
+        <button class="lesson-btn btn-primary" onclick="${isLast ? 'startTest()' : 'nextLesson()'}">
+            ${isLast ? '📋 К тесту' : 'Дальше →'}
+        </button>
+    </div>
+    `;
+    
+    content.innerHTML = html;
+    view.classList.add('active');
 }
 
 function nextLesson() {
-currentLesson.index++;
-userProgress.textIndex = currentLesson.index;
-saveProgress();
-showLesson();
+    currentLesson.index++;
+    userProgress.textIndex = currentLesson.index;
+    saveProgress();
+    showLesson();
 }
 
 function prevLesson() {
-if (currentLesson.index > 0) {
-currentLesson.index--;
-userProgress.textIndex = currentLesson.index;
-saveProgress();
-showLesson();
-}
+    if (currentLesson.index > 0) {
+        currentLesson.index--;
+        userProgress.textIndex = currentLesson.index;
+        saveProgress();
+        showLesson();
+    }
 }
 
 function closeLesson() {
-document.getElementById('lessonView').classList.remove('active');
+    document.getElementById('lessonView').classList.remove('active');
 }
 
 document.getElementById('lessonBack').addEventListener('click', closeLesson);
 
 // === ТЕСТЫ ===
 function startTest() {
-currentTest = {
-block: currentLesson.block,
-questionIndex: 0,
-answers: []
-};
-showTestQuestion();
-document.getElementById('lessonView').classList.remove('active');
-document.getElementById('testView').classList.add('active');
+    currentTest = {
+        block: currentLesson.block,
+        questionIndex: 0,
+        answers: []
+    };
+    showTestQuestion();
+    document.getElementById('lessonView').classList.remove('active');
+    document.getElementById('testView').classList.add('active');
 }
 
 function showTestQuestion() {
-const questions = appData.questions[currentTest.block] || [];
-if (currentTest.questionIndex >= questions.length) {
-finishTest();
-return;
-}
-
-const q = questions[currentTest.questionIndex];
-const progress = ((currentTest.questionIndex) / questions.length) * 100;
-
-document.getElementById('testProgress').textContent = `${currentTest.questionIndex + 1}/${questions.length}`;
-document.getElementById('testProgressBar').style.width = `${progress}%`;
-document.getElementById('testQuestion').textContent = `❓ ${q.question}`;
-
-const optionsHtml = q.options.map((opt, i) => `
-<div class="test-option" onclick="selectAnswer(${i})">
-${String.fromCharCode(65 + i)}) ${opt}
-</div>
-`).join('');
-
-document.getElementById('testOptions').innerHTML = optionsHtml;
-document.getElementById('testFeedback').classList.remove('show');
-document.getElementById('testNext').style.display = 'none';
+    const questions = appData.questions[currentTest.block] || [];
+    if (currentTest.questionIndex >= questions.length) {
+        finishTest();
+        return;
+    }
+    
+    const q = questions[currentTest.questionIndex];
+    const progress = ((currentTest.questionIndex) / questions.length) * 100;
+    
+    document.getElementById('testProgress').textContent = `${currentTest.questionIndex + 1}/${questions.length}`;
+    document.getElementById('testProgressBar').style.width = `${progress}%`;
+    document.getElementById('testQuestion').textContent = `❓ ${q.question}`;
+    
+    const optionsHtml = q.options.map((opt, i) => `
+    <div class="test-option" onclick="selectAnswer(${i})">
+        ${String.fromCharCode(65 + i)}) ${opt}
+    </div>
+    `).join('');
+    
+    document.getElementById('testOptions').innerHTML = optionsHtml;
+    document.getElementById('testFeedback').classList.remove('show');
+    document.getElementById('testNext').style.display = 'none';
 }
 
 function selectAnswer(index) {
-const questions = appData.questions[currentTest.block] || [];
-const q = questions[currentTest.questionIndex];
-const options = document.querySelectorAll('.test-option');
-
-options.forEach((opt, i) => {
-opt.classList.remove('selected', 'correct', 'wrong');
-if (i === index) opt.classList.add('selected');
-if (i === q.correct) opt.classList.add('correct');
-if (i === index && i !== q.correct) opt.classList.add('wrong');
-});
-
-const isCorrect = index === q.correct;
-currentTest.answers.push({ questionIndex: currentTest.questionIndex, correct: isCorrect });
-
-const feedback = document.getElementById('testFeedback');
-document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Правильно!' : '❌ Ошибка';
-document.getElementById('feedbackText').textContent = q.explanation;
-feedback.classList.add('show');
-
-document.getElementById('testNext').style.display = 'block';
+    const questions = appData.questions[currentTest.block] || [];
+    const q = questions[currentTest.questionIndex];
+    const options = document.querySelectorAll('.test-option');
+    
+    options.forEach((opt, i) => {
+        opt.classList.remove('selected', 'correct', 'wrong');
+        if (i === index) opt.classList.add('selected');
+        if (i === q.correct) opt.classList.add('correct');
+        if (i === index && i !== q.correct) opt.classList.add('wrong');
+    });
+    
+    const isCorrect = index === q.correct;
+    currentTest.answers.push({ questionIndex: currentTest.questionIndex, correct: isCorrect });
+    
+    const feedback = document.getElementById('testFeedback');
+    document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Правильно!' : '❌ Ошибка';
+    document.getElementById('feedbackText').textContent = q.explanation;
+    feedback.classList.add('show');
+    
+    document.getElementById('testNext').style.display = 'block';
 }
 
 document.getElementById('testNext').addEventListener('click', () => {
-currentTest.questionIndex++;
-showTestQuestion();
+    currentTest.questionIndex++;
+    showTestQuestion();
 });
 
 function finishTest() {
-const questions = appData.questions[currentTest.block] || [];
-const correct = currentTest.answers.filter(a => a.correct).length;
-const total = questions.length;
-const score = Math.round((correct / total) * 100);
-const passed = score >= 80;
-
-userProgress.testScores[`chapter_${currentTest.block}`] = correct;
-
-if (!userProgress.testHistory[`chapter_${currentTest.block}`]) {
-userProgress.testHistory[`chapter_${currentTest.block}`] = [];
-}
-userProgress.testHistory[`chapter_${currentTest.block}`].push({
-timestamp: new Date().toISOString(),
-score: correct,
-total,
-passed
-});
-
-if (passed) {
-if (!userProgress.passedBlocks.includes(`chapter_${currentTest.block}`)) {
-userProgress.passedBlocks.push(`chapter_${currentTest.block}`);
-}
-if (currentTest.block === userProgress.currentBlock && currentTest.block < 4) {
-userProgress.currentBlock++;
-}
-}
-
-saveProgress();
-updateProgressUI();
-
-document.getElementById('testView').classList.remove('active');
-
-const resultMsg = passed 
-? `🎉 Блок ${currentTest.block} пройден! ${correct}/${total}`
-: `❌ Не пройдено. Нужно 80%. Ваш результат: ${correct}/${total}`;
-
-tg.showAlert(resultMsg);
+    const questions = appData.questions[currentTest.block] || [];
+    const correct = currentTest.answers.filter(a => a.correct).length;
+    const total = questions.length;
+    const score = Math.round((correct / total) * 100);
+    const passed = score >= 80;
+    
+    userProgress.testScores[`chapter_${currentTest.block}`] = correct;
+    
+    if (!userProgress.testHistory[`chapter_${currentTest.block}`]) {
+        userProgress.testHistory[`chapter_${currentTest.block}`] = [];
+    }
+    userProgress.testHistory[`chapter_${currentTest.block}`].push({
+        timestamp: new Date().toISOString(),
+        score: correct,
+        total,
+        passed
+    });
+    
+    if (passed) {
+        if (!userProgress.passedBlocks.includes(`chapter_${currentTest.block}`)) {
+            userProgress.passedBlocks.push(`chapter_${currentTest.block}`);
+        }
+        if (currentTest.block === userProgress.currentBlock && currentTest.block < 4) {
+            userProgress.currentBlock++;
+        }
+    }
+    
+    saveProgress();
+    updateProgressUI();
+    
+    document.getElementById('testView').classList.remove('active');
+    
+    const resultMsg = passed 
+        ? `🎉 Блок ${currentTest.block} пройден! ${correct}/${total}`
+        : `❌ Не пройдено. Нужно 80%. Ваш результат: ${correct}/${total}`;
+    
+    tg.showAlert(resultMsg);
 }
 
 document.getElementById('testBack').addEventListener('click', () => {
-document.getElementById('testView').classList.remove('active');
+    document.getElementById('testView').classList.remove('active');
 });
 
 // === СПРАВОЧНИКИ ===
 document.querySelectorAll('.ref-card').forEach(card => {
-card.addEventListener('click', () => {
-currentRefType = card.dataset.type;
-document.getElementById('refResultsTitle').innerHTML = `<i class="fas fa-list"></i> ${card.querySelector('.ref-title').textContent}`;
-renderReferences();
-});
+    card.addEventListener('click', () => {
+        currentRefType = card.dataset.type;
+        document.getElementById('refResultsTitle').innerHTML = `<i class="fas fa-list"></i> ${card.querySelector('.ref-title').textContent}`;
+        renderReferences();
+    });
 });
 
 document.getElementById('refSearch').addEventListener('input', (e) => {
-renderReferences(e.target.value);
+    renderReferences(e.target.value);
 });
 
 // === ТЕМА ===
 const themeBtn = document.getElementById('themeToggle');
 themeBtn.addEventListener('click', () => {
-const body = document.body;
-const isDark = body.getAttribute('data-theme') === 'dark';
-const icon = themeBtn.querySelector('i');
-if (isDark) {
-body.removeAttribute('data-theme');
-icon.className = 'fas fa-moon';
-} else {
-body.setAttribute('data-theme', 'dark');
-icon.className = 'fas fa-sun';
-}
+    const body = document.body;
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    const icon = themeBtn.querySelector('i');
+    if (isDark) {
+        body.removeAttribute('data-theme');
+        icon.className = 'fas fa-moon';
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        icon.className = 'fas fa-sun';
+    }
 });
 
 // === СБРОС ПРОГРЕССА ===
 document.getElementById('resetProgress').addEventListener('click', () => {
-tg.showConfirm('Сбросить весь прогресс?', (confirmed) => {
-if (confirmed) {
-userProgress = {
-currentBlock: 1,
-currentStep: 'text',
-textIndex: 0,
-testScores: {},
-passedBlocks: [],
-blocksLocked: {},
-testHistory: {}
-};
-saveProgress();
-updateProgressUI();
-tg.showAlert('Прогресс сброшен!');
-}
-});
+    tg.showConfirm('Сбросить весь прогресс?', (confirmed) => {
+        if (confirmed) {
+            userProgress = {
+                currentBlock: 1,
+                currentStep: 'text',
+                textIndex: 0,
+                testScores: {},
+                passedBlocks: [],
+                blocksLocked: {},
+                testHistory: {}
+            };
+            saveProgress();
+            updateProgressUI();
+            tg.showAlert('Прогресс сброшен!');
+        }
+    });
 });
 
 // === ИНИЦИАЛИЗАЦИЯ ===
 async function init() {
-loadProgress();
-
-try {
-await loadAllData();
-} catch (e) {
-console.error('Init error:', e);
-appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
-document.getElementById('loadingError').innerHTML = '⚠️ Ошибка загрузки<br>Используются тестовые данные';
-}
-
-updateProgressUI();
-renderReferences();
-
-// Сертификат при полном прохождении
-if (userProgress.passedBlocks.length === 4) {
-document.getElementById('certificateContainer').innerHTML = `
-<div class="certificate">
-<div class="certificate-title">🏆 СЕРТИФИКАТ ЮЖАНИНА</div>
-<div>Выдан: ${new Date().toLocaleDateString('ru-RU')}</div>
-<div class="certificate-date">✅ Все 4 блока пройдены</div>
-</div>
-`;
-}
-
-setTimeout(() => {
-document.getElementById('loading').classList.add('hidden');
-}, 1000);
+    loadProgress();
+    
+    try {
+        await loadAllData();
+    } catch (e) {
+        console.error('Init error:', e);
+        appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+        document.getElementById('loadingError').innerHTML = '⚠️ Ошибка загрузки<br>Используются тестовые данные';
+    }
+    
+    updateProgressUI();
+    renderReferences();
+    
+    // Сертификат при полном прохождении
+    if (userProgress.passedBlocks.length === 4) {
+        document.getElementById('certificateContainer').innerHTML = `
+        <div class="certificate">
+            <div class="certificate-title">🏆 СЕРТИФИКАТ ЮЖАНИНА</div>
+            <div>Выдан: ${new Date().toLocaleDateString('ru-RU')}</div>
+            <div class="certificate-date">✅ Все 4 блока пройдены</div>
+        </div>
+        `;
+    }
+    
+    setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+    }, 1000);
 }
 
 init();
