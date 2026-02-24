@@ -31,7 +31,11 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-html, body { width: 100%; height: 100%; overflow: hidden; }
+html, body { 
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden;
+}
 
 body { 
     background-color: var(--bg-color); 
@@ -41,6 +45,307 @@ body {
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
+/* ========== КРАСИВЫЙ СЕРТИФИКАТ ========== */
+.certificate-container {
+    perspective: 1000px;
+    margin-bottom: 20px;
+}
+
+.certificate {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+    border-radius: var(--radius);
+    padding: 40px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    border: 3px solid var(--gold);
+    animation: certificateSlideIn 0.6s ease-out;
+}
+
+@keyframes certificateSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+/* Декоративная рамка */
+.certificate::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.certificate::after {
+    content: '';
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    border: 1px dashed var(--gold-light);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+/* Уголки */
+.certificate-corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gold);
+    pointer-events: none;
+}
+
+.certificate-corner.top-left {
+    top: 10px; left: 10px;
+    border-right: none; border-bottom: none;
+}
+
+.certificate-corner.top-right {
+    top: 10px; right: 10px;
+    border-left: none; border-bottom: none;
+}
+
+.certificate-corner.bottom-left {
+    bottom: 10px; left: 10px;
+    border-right: none; border-top: none;
+}
+
+.certificate-corner.bottom-right {
+    bottom: 10px; right: 10px;
+    border-left: none; border-top: none;
+}
+
+/* Блестящий эффект */
+.certificate-shine {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(212, 175, 55, 0.1) 45%,
+        rgba(212, 175, 55, 0.2) 50%,
+        rgba(212, 175, 55, 0.1) 55%,
+        transparent 60%
+    );
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Иконка сертификата */
+.certificate-icon {
+    font-size: 4rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.certificate-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.certificate-subtitle {
+    font-size: 1rem;
+    color: var(--gold-light);
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-recipient {
+    font-size: 1.4rem;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding: 15px 30px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-details {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-date {
+    color: var(--gold-light);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-stat {
+    background: rgba(212, 175, 55, 0.1);
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+}
+
+.certificate-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.certificate-stat-label {
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    margin-top: 4px;
+}
+
+.certificate-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-signature {
+    text-align: left;
+}
+
+.certificate-signature-line {
+    width: 120px;
+    height: 2px;
+    background: var(--gold);
+    margin-bottom: 8px;
+}
+
+.certificate-signature-text {
+    font-size: 0.8rem;
+    color: var(--gold-light);
+}
+
+.certificate-seal {
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--gold);
+    background: rgba(212, 175, 55, 0.1);
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Кнопки действий */
+.certificate-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.certificate-btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #1a1a2e;
+}
+
+.certificate-btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid var(--gold);
+}
+
+.certificate-btn:active {
+    transform: scale(0.95);
+}
+
+/* Конфетти */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: var(--gold);
+    animation: confettiFall 3s linear forwards;
+    pointer-events: none;
+    z-index: 3000;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ========== ОСТАЛЬНЫЕ СТИЛИ ========== */
 header {
 position: fixed; top: 0; left: 0; right: 0;
 background: rgba(255, 255, 255, 0.95);
@@ -320,297 +625,6 @@ cursor: pointer;
 .screen { display: none; }
 .screen.active { display: block; }
 
-/* ========== КРАСИВЫЙ СЕРТИФИКАТ ========== */
-.certificate-container {
-    perspective: 1000px;
-    margin-bottom: 20px;
-}
-
-.certificate {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-    border-radius: var(--radius);
-    padding: 40px 30px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    border: 3px solid var(--gold);
-    animation: certificateSlideIn 0.6s ease-out;
-}
-
-@keyframes certificateSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px) rotateX(10deg);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) rotateX(0);
-    }
-}
-
-.certificate::before {
-    content: '';
-    position: absolute;
-    top: 10px; left: 10px; right: 10px; bottom: 10px;
-    border: 2px solid var(--gold);
-    border-radius: 12px;
-    pointer-events: none;
-}
-
-.certificate::after {
-    content: '';
-    position: absolute;
-    top: 15px; left: 15px; right: 15px; bottom: 15px;
-    border: 1px dashed var(--gold-light);
-    border-radius: 10px;
-    pointer-events: none;
-}
-
-.certificate-corner {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border: 3px solid var(--gold);
-    pointer-events: none;
-}
-
-.certificate-corner.top-left {
-    top: 10px; left: 10px;
-    border-right: none; border-bottom: none;
-}
-
-.certificate-corner.top-right {
-    top: 10px; right: 10px;
-    border-left: none; border-bottom: none;
-}
-
-.certificate-corner.bottom-left {
-    bottom: 10px; left: 10px;
-    border-right: none; border-top: none;
-}
-
-.certificate-corner.bottom-right {
-    bottom: 10px; right: 10px;
-    border-left: none; border-top: none;
-}
-
-.certificate-shine {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 40%,
-        rgba(212, 175, 55, 0.1) 45%,
-        rgba(212, 175, 55, 0.2) 50%,
-        rgba(212, 175, 55, 0.1) 55%,
-        transparent 60%
-    );
-    animation: shine 3s infinite;
-    pointer-events: none;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) rotate(45deg); }
-}
-
-.certificate-icon {
-    font-size: 4rem;
-    color: var(--gold);
-    margin-bottom: 20px;
-    animation: pulse 2s infinite;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--gold);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
-}
-
-.certificate-subtitle {
-    font-size: 1rem;
-    color: var(--gold-light);
-    margin-bottom: 25px;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-recipient {
-    font-size: 1.4rem;
-    color: white;
-    font-weight: 700;
-    margin-bottom: 20px;
-    padding: 15px 30px;
-    background: rgba(212, 175, 55, 0.1);
-    border-radius: 8px;
-    border: 1px solid var(--gold);
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-details {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.95rem;
-    line-height: 1.8;
-    margin-bottom: 25px;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-date {
-    color: var(--gold-light);
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 25px;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-stat {
-    background: rgba(212, 175, 55, 0.1);
-    padding: 12px 8px;
-    border-radius: 8px;
-    border: 1px solid var(--gold);
-}
-
-.certificate-stat-value {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--gold);
-}
-
-.certificate-stat-label {
-    font-size: 0.7rem;
-    color: var(--gold-light);
-    margin-top: 4px;
-}
-
-.certificate-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    border-top: 1px solid rgba(212, 175, 55, 0.3);
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-signature {
-    text-align: left;
-}
-
-.certificate-signature-line {
-    width: 120px;
-    height: 2px;
-    background: var(--gold);
-    margin-bottom: 8px;
-}
-
-.certificate-signature-text {
-    font-size: 0.8rem;
-    color: var(--gold-light);
-}
-
-.certificate-seal {
-    width: 60px;
-    height: 60px;
-    border: 3px solid var(--gold);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: var(--gold);
-    background: rgba(212, 175, 55, 0.1);
-    animation: rotate 10s linear infinite;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.certificate-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    position: relative;
-    z-index: 2;
-}
-
-.certificate-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border-radius: 10px;
-    border: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.certificate-btn-primary {
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
-    color: #1a1a2e;
-}
-
-.certificate-btn-secondary {
-    background: rgba(255,255,255,0.1);
-    color: white;
-    border: 1px solid var(--gold);
-}
-
-.certificate-btn:active {
-    transform: scale(0.95);
-}
-
-.confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background: var(--gold);
-    animation: confettiFall 3s linear forwards;
-    pointer-events: none;
-    z-index: 3000;
-}
-
-@keyframes confettiFall {
-    0% {
-        transform: translateY(-100vh) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-    }
-}
-
-
-
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
@@ -624,7 +638,6 @@ cursor: pointer;
 <div class="loading-text">Загрузка обучения...</div>
 <div class="loading-error" id="loadingError"></div>
 </div>
-
 
 <header>
 <div class="logo">
@@ -724,9 +737,6 @@ cursor: pointer;
 <button class="lesson-btn btn-secondary" id="resetProgress" style="width: 100%;">
 <i class="fas fa-redo"></i> Сбросить прогресс
 </button>
-<button class="lesson-btn btn-primary" id="syncProgress" style="width: 100%; margin-top: 10px;">
-<i class="fas fa-sync"></i> Синхронизировать с ботом
-</button>
 </div>
 </div>
 
@@ -795,6 +805,9 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+const SHEET_ID = '158E5Bv70FryY6MFPADvtXAaDgndIvzWgCkTXC8IhmnQ';
+const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}';
+
 const FALLBACK_DATA = {
     texts: {
         1: [{ text: "🏠 СЕМЬЯ ЮЖАН\n\n18+ — это эталон хинкали с 18 складками.", image: "" }],
@@ -822,15 +835,6 @@ let currentLesson = { block: 1, index: 0 };
 let currentTest = { block: 1, questionIndex: 0, answers: [] };
 let currentRefType = 'menu';
 let isLoading = false;
-
-// ========== DEBUG LOG ФУНКЦИЯ ==========
-
-    const time = new Date().toLocaleTimeString();
-    logBox.innerHTML += `[${time}] ${message}<br>`;
-    logBox.scrollTop = logBox.scrollHeight;
-    logBox.style.display = 'block';
-    console.log(message);
-}
 
 // ========== ФУНКЦИЯ КРАСИВОГО СЕРТИФИКАТА ==========
 function generateCertificate() {
@@ -912,6 +916,7 @@ function generateCertificate() {
     `;
 }
 
+// Функция для конфетти
 function startConfetti() {
     const colors = ['#D4AF37', '#F4D06F', '#722F37', '#9e4650', '#ffffff'];
     for (let i = 0; i < 50; i++) {
@@ -928,6 +933,8 @@ function startConfetti() {
 }
 
 function shareCertificate() {
+    const user = tg.initDataUnsafe?.user;
+    const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : 'Южанин';
     tg.shareUrl('', `🏆 Я стал ЮЖАНИНОМ! Пройти обучение: ${window.location.href}`);
 }
 
@@ -935,43 +942,198 @@ function downloadCertificate() {
     tg.showAlert('📸 Сделайте скриншот для сохранения сертификата!');
 }
 
-// ========== СИНХРОНИЗАЦИЯ С БОТОМ ==========
-function saveProgress() {
-    localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
+// ========== ОСТАЛЬНОЙ КОД ==========
+function parseCSV(text) {
+    const rows = [];
+    let currentRow = [];
+    let currentCell = '';
+    let inQuotes = false;
     
-    logToScreen('💾 Прогресс сохранён в localStorage');
-    
-    // ОТПРАВКА ПРОГРЕССА БОТУ ЧЕРЕЗ tg.sendData()
-    if (tg && tg.sendData) {
-        try {
-            const data = {
-                type: 'progress_sync',
-                currentBlock: userProgress.currentBlock,
-                passedBlocks: userProgress.passedBlocks,
-                testScores: userProgress.testScores,
-                testHistory: userProgress.testHistory,
-                timestamp: new Date().toISOString()
-            };
-            
-            logToScreen('📤 Отправляем боту: ' + JSON.stringify(data).slice(0, 100) + '...');
-            tg.sendData(JSON.stringify(data));
-            logToScreen('✅ ДАННЫЕ ОТПРАВЛЕНЫ!');
-            
-            // Показываем уведомление пользователю
-            setTimeout(() => {
-                logToScreen('📢 Показываем Alert пользователю');
-            }, 500);
-        } catch (e) {
-            logToScreen('❌ ОШИБКА ОТПРАВКИ: ' + e.message);
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        
+        if (inQuotes) {
+            if (char === '"') {
+                if (nextChar === '"') {
+                    currentCell += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                currentCell += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                currentRow.push(currentCell.trim());
+                currentCell = '';
+            } else if (char === '\n') {
+                currentRow.push(currentCell.trim());
+                if (currentRow.length > 0 && currentRow.some(c => c !== '')) {
+                    rows.push(currentRow);
+                }
+                currentRow = [];
+                currentCell = '';
+            } else if (char !== '\r') {
+                currentCell += char;
+            }
         }
-    } else {
-        logToScreen('⚠️ tg.sendData НЕДОСТУПЕН');
-        logToScreen('tg объект: ' + JSON.stringify({
-            ready: !!tg.ready,
-            expand: !!tg.expand,
-            sendData: !!tg.sendData,
-            showAlert: !!tg.showAlert
-        }));
+    }
+    
+    if (currentCell || currentRow.length > 0) {
+        currentRow.push(currentCell.trim());
+        if (currentRow.some(c => c !== '')) {
+            rows.push(currentRow);
+        }
+    }
+    
+    if (rows.length < 2) return [];
+    const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+    
+    return rows.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => {
+            obj[h] = row[i] || '';
+        });
+        return obj;
+    });
+}
+
+async function fetchSheet(sheetName, timeout = 8000) {
+    const url = GVIZ_URL.replace('{sheet_id}', SHEET_ID).replace('{sheet_name}', sheetName);
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        return parseCSV(text);
+    } catch (e) {
+        console.warn(`Failed to load ${sheetName}:`, e.message);
+        return null;
+    }
+}
+
+async function loadAllData() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    try {
+        const [textsRows, questionsRows, menuRows, wineRows, allergensRows] = await Promise.all([
+            fetchSheet('Texts'),
+            fetchSheet('Questions'),
+            fetchSheet('Menu'),
+            fetchSheet('Wine'),
+            fetchSheet('Allergens')
+        ]);
+        
+        let loaded = false;
+        
+        if (textsRows && textsRows.length > 0) {
+            loaded = true;
+            textsRows.forEach(row => {
+                const ch = parseInt(row.chapter) || 1;
+                if (ch >= 1 && ch <= 4) {
+                    if (!appData.texts[ch]) appData.texts[ch] = [];
+                    appData.texts[ch].push({
+                        text: row.text || '',
+                        image: row.image || ''
+                    });
+                }
+            });
+        }
+        
+        if (questionsRows && questionsRows.length > 0) {
+            loaded = true;
+            questionsRows.forEach(row => {
+                const ch = parseInt(row.chapter) || 1;
+                if (ch >= 1 && ch <= 4) {
+                    const options = [];
+                    for (let i = 1; i <= 10; i++) {
+                        const opt = row[`option_${i}`] || row[`option${i}`];
+                        if (opt && opt.trim() !== '') options.push(opt);
+                    }
+                    
+                    let correct = 0;
+                    const correctRaw = row.correct;
+                    if (correctRaw) {
+                        const cr = String(correctRaw).trim();
+                        if (cr >= 'A' && cr <= 'J') {
+                            correct = cr.charCodeAt(0) - 65;
+                        } else if (!isNaN(parseInt(cr))) {
+                            correct = parseInt(cr);
+                        }
+                    }
+                    
+                    if (!appData.questions[ch]) appData.questions[ch] = [];
+                    appData.questions[ch].push({
+                        question: row.question || '',
+                        options,
+                        correct,
+                        explanation: row.explanation || ''
+                    });
+                }
+            });
+        }
+        
+        if (menuRows && menuRows.length > 0) {
+            loaded = true;
+            menuRows.forEach(r => { 
+                const key = (r.key || '').toLowerCase().trim();
+                const val = r.value || '';
+                if (key && val) appData.menu[key] = val; 
+            });
+        }
+        if (wineRows && wineRows.length > 0) {
+            loaded = true;
+            wineRows.forEach(r => { 
+                const key = (r.key || '').toLowerCase().trim();
+                const val = r.value || '';
+                if (key && val) appData.wine[key] = val; 
+            });
+        }
+        if (allergensRows && allergensRows.length > 0) {
+            loaded = true;
+            allergensRows.forEach(r => { 
+                const key = (r.key || '').toLowerCase().trim();
+                const val = r.value || '';
+                if (key && val) appData.allergens[key] = val; 
+            });
+        }
+        
+        console.log('📊 Data loaded:', {
+            texts: Object.keys(appData.texts).map(k => `${k}:${appData.texts[k]?.length || 0}`),
+            questions: Object.keys(appData.questions).map(k => `${k}:${appData.questions[k]?.length || 0}`),
+            menu: Object.keys(appData.menu).length
+        });
+        
+        if (!loaded) {
+            throw new Error('No data loaded from sheets');
+        }
+        
+        for (let ch = 1; ch <= 4; ch++) {
+            if (!appData.texts[ch] || appData.texts[ch].length === 0) {
+                appData.texts[ch] = FALLBACK_DATA.texts[ch] || [];
+            }
+            if (!appData.questions[ch] || appData.questions[ch].length === 0) {
+                appData.questions[ch] = FALLBACK_DATA.questions[ch] || [];
+            }
+        }
+        
+    } catch (e) {
+        console.error('Load error:', e);
+        appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+        document.getElementById('loadingError').innerHTML = `
+            ⚠️ Google Sheets недоступны<br>
+            <button onclick="location.reload()">🔄 Попробовать снова</button>
+        `;
+    } finally {
+        isLoading = false;
     }
 }
 
@@ -979,24 +1141,33 @@ function loadProgress() {
     const saved = localStorage.getItem('ujzhan_progress');
     if (saved) {
         userProgress = { ...userProgress, ...JSON.parse(saved) };
-        logToScreen('📥 Прогресс загружен из localStorage');
-    } else {
-        logToScreen('📭 Нет сохранённого прогресса');
     }
     const user = tg.initDataUnsafe?.user;
     if (user) {
         document.getElementById('profileName').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
         document.getElementById('profileId').textContent = `ID: ${user.id}`;
-        logToScreen('👤 Пользователь: ' + user.first_name + ' (ID: ' + user.id + ')');
     }
 }
 
-// Синхронизация с ботом (кнопка в профиле)
-document.getElementById('syncProgress').addEventListener('click', () => {
-    logToScreen('🔄 Ручная синхронизация запущена');
-    saveProgress();
-    tg.showAlert('📊 Прогресс отправлен боту!\n\nОткройте бота и напишите /stats для проверки.');
-});
+function saveProgress() {
+    localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
+    
+    if (tg && tg.sendData) {
+        try {
+            tg.sendData(JSON.stringify({
+                type: 'progress_sync',
+                currentBlock: userProgress.currentBlock,
+                passedBlocks: userProgress.passedBlocks,
+                testScores: userProgress.testScores,
+                testHistory: userProgress.testHistory,
+                timestamp: new Date().toISOString()
+            }));
+            console.log('📤 Прогресс отправлен боту');
+        } catch (e) {
+            console.warn('Не удалось отправить данные боту:', e);
+        }
+    }
+}
 
 function getProgressPercent() {
     const passed = userProgress.passedBlocks.length;
@@ -1115,7 +1286,6 @@ function openChapter(blockNum) {
     userProgress.currentBlock = blockNum;
     userProgress.currentStep = 'text';
     userProgress.textIndex = 0;
-    logToScreen(`📖 Открыт блок ${blockNum}`);
     saveProgress();
     showLesson();
 }
@@ -1128,7 +1298,6 @@ function showLesson() {
     const item = texts[currentLesson.index];
     
     if (!item) {
-        logToScreen('📋 Переход к тесту');
         startTest();
         return;
     }
@@ -1158,7 +1327,6 @@ function showLesson() {
 function nextLesson() {
     currentLesson.index++;
     userProgress.textIndex = currentLesson.index;
-    logToScreen(`📄 Переход на урок ${currentLesson.index + 1}`);
     saveProgress();
     showLesson();
 }
@@ -1181,13 +1349,11 @@ function startTest() {
     showTestQuestion();
     document.getElementById('lessonView').classList.remove('active');
     document.getElementById('testView').classList.add('active');
-    logToScreen('📝 Тест начат');
 }
 
 function showTestQuestion() {
     const questions = appData.questions[currentTest.block] || [];
     if (currentTest.questionIndex >= questions.length) {
-        logToScreen('✅ Все вопросы заданы');
         finishTest();
         return;
     }
@@ -1224,7 +1390,6 @@ function selectAnswer(index) {
     
     const isCorrect = index === q.correct;
     currentTest.answers.push({ questionIndex: currentTest.questionIndex, correct: isCorrect });
-    logToScreen(`💬 Ответ: ${isCorrect ? '✅' : '❌'}`);
     
     const feedback = document.getElementById('testFeedback');
     document.getElementById('feedbackTitle').textContent = isCorrect ? '✅ Правильно!' : '❌ Ошибка';
@@ -1246,8 +1411,6 @@ function finishTest() {
     const score = Math.round((correct / total) * 100);
     const passed = score >= 80;
     
-    logToScreen(`📊 Тест завершён: ${correct}/${total} (${score}%)`);
-    
     userProgress.testScores[`chapter_${currentTest.block}`] = correct;
     
     if (!userProgress.testHistory[`chapter_${currentTest.block}`]) {
@@ -1263,13 +1426,10 @@ function finishTest() {
     if (passed) {
         if (!userProgress.passedBlocks.includes(`chapter_${currentTest.block}`)) {
             userProgress.passedBlocks.push(`chapter_${currentTest.block}`);
-            logToScreen(`✅ Блок ${currentTest.block} пройден!`);
         }
         if (currentTest.block === userProgress.currentBlock && currentTest.block < 4) {
             userProgress.currentBlock++;
         }
-    } else {
-        logToScreen(`❌ Блок ${currentTest.block} не пройден (нужно 80%)`);
     }
     
     saveProgress();
@@ -1282,12 +1442,6 @@ function finishTest() {
         : `❌ Не пройдено. Нужно 80%. Результат: ${correct}/${total}`;
     
     tg.showAlert(resultMsg);
-    
-    // Закрываем Web App после теста (триггерит sendData)
-    setTimeout(() => {
-        logToScreen('🚪 Закрываем Web App');
-        tg.close();
-    }, 1500);
 }
 
 document.getElementById('testBack').addEventListener('click', () => {
@@ -1314,11 +1468,9 @@ themeBtn.addEventListener('click', () => {
     if (isDark) {
         body.removeAttribute('data-theme');
         icon.className = 'fas fa-moon';
-        logToScreen('🌙 Светлая тема');
     } else {
         body.setAttribute('data-theme', 'dark');
         icon.className = 'fas fa-sun';
-        logToScreen('☀️ Тёмная тема');
     }
 });
 
@@ -1331,34 +1483,32 @@ document.getElementById('resetProgress').addEventListener('click', () => {
             };
             saveProgress();
             updateProgressUI();
-            logToScreen('🗑️ Прогресс сброшен');
             tg.showAlert('Прогресс сброшен!');
         }
     });
 });
 
-// Закрытие при свайпе вниз
-window.addEventListener('beforeunload', () => {
-    logToScreen('📤 beforeunload - сохраняем прогресс');
-    saveProgress();
-});
-
 async function init() {
-    logToScreen('🚀 Инициализация Web App...');
-    logToScreen('Telegram WebApp: ' + (tg ? 'OK' : 'FAIL'));
-    
     loadProgress();
-    updateProgressUI();
     
+    try {
+        await loadAllData();
+    } catch (e) {
+        console.error('Init error:', e);
+        appData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+    }
+    
+    updateProgressUI();
+    renderReferences();
+    
+    // Показываем сертификат если все блоки пройдены
     if (userProgress.passedBlocks.length === 4) {
-        logToScreen('🏆 Все блоки пройдены - показываем сертификат');
         document.getElementById('certificateContainer').innerHTML = generateCertificate();
         startConfetti();
     }
     
     setTimeout(() => {
         document.getElementById('loading').classList.add('hidden');
-        logToScreen('✅ Загрузка завершена');
     }, 500);
 }
 
