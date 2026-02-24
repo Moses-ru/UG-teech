@@ -19,6 +19,8 @@
 --transition: all 0.3s ease;
 --header-height: 60px;
 --nav-height: 70px;
+--gold: #D4AF37;
+--gold-light: #F4D06F;
 }
 [data-theme="dark"] {
 --bg-color: #121212;
@@ -43,6 +45,307 @@ body {
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
+/* ========== КРАСИВЫЙ СЕРТИФИКАТ ========== */
+.certificate-container {
+    perspective: 1000px;
+    margin-bottom: 20px;
+}
+
+.certificate {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+    border-radius: var(--radius);
+    padding: 40px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    border: 3px solid var(--gold);
+    animation: certificateSlideIn 0.6s ease-out;
+}
+
+@keyframes certificateSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px) rotateX(10deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+/* Декоративная рамка */
+.certificate::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.certificate::after {
+    content: '';
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    border: 1px dashed var(--gold-light);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+/* Уголки */
+.certificate-corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gold);
+    pointer-events: none;
+}
+
+.certificate-corner.top-left {
+    top: 10px; left: 10px;
+    border-right: none; border-bottom: none;
+}
+
+.certificate-corner.top-right {
+    top: 10px; right: 10px;
+    border-left: none; border-bottom: none;
+}
+
+.certificate-corner.bottom-left {
+    bottom: 10px; left: 10px;
+    border-right: none; border-top: none;
+}
+
+.certificate-corner.bottom-right {
+    bottom: 10px; right: 10px;
+    border-left: none; border-top: none;
+}
+
+/* Блестящий эффект */
+.certificate-shine {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(212, 175, 55, 0.1) 45%,
+        rgba(212, 175, 55, 0.2) 50%,
+        rgba(212, 175, 55, 0.1) 55%,
+        transparent 60%
+    );
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Иконка сертификата */
+.certificate-icon {
+    font-size: 4rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.certificate-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+.certificate-subtitle {
+    font-size: 1rem;
+    color: var(--gold-light);
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-recipient {
+    font-size: 1.4rem;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding: 15px 30px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-details {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-date {
+    color: var(--gold-light);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-stat {
+    background: rgba(212, 175, 55, 0.1);
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+}
+
+.certificate-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.certificate-stat-label {
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    margin-top: 4px;
+}
+
+.certificate-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-signature {
+    text-align: left;
+}
+
+.certificate-signature-line {
+    width: 120px;
+    height: 2px;
+    background: var(--gold);
+    margin-bottom: 8px;
+}
+
+.certificate-signature-text {
+    font-size: 0.8rem;
+    color: var(--gold-light);
+}
+
+.certificate-seal {
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--gold);
+    background: rgba(212, 175, 55, 0.1);
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Кнопки действий */
+.certificate-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.certificate-btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: #1a1a2e;
+}
+
+.certificate-btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid var(--gold);
+}
+
+.certificate-btn:active {
+    transform: scale(0.95);
+}
+
+/* Конфетти */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: var(--gold);
+    animation: confettiFall 3s linear forwards;
+    pointer-events: none;
+    z-index: 3000;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ========== ОСТАЛЬНЫЕ СТИЛИ ========== */
 header {
 position: fixed; top: 0; left: 0; right: 0;
 background: rgba(255, 255, 255, 0.95);
@@ -322,17 +625,6 @@ cursor: pointer;
 .screen { display: none; }
 .screen.active { display: block; }
 
-.certificate {
-background: linear-gradient(135deg, var(--primary), var(--primary-light));
-color: white;
-padding: 30px;
-border-radius: var(--radius);
-text-align: center;
-margin-bottom: 20px;
-}
-.certificate-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; }
-.certificate-date { font-size: 0.9rem; opacity: 0.9; }
-
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
@@ -544,6 +836,113 @@ let currentTest = { block: 1, questionIndex: 0, answers: [] };
 let currentRefType = 'menu';
 let isLoading = false;
 
+// ========== ФУНКЦИЯ КРАСИВОГО СЕРТИФИКАТА ==========
+function generateCertificate() {
+    const user = tg.initDataUnsafe?.user;
+    const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : 'Южанин';
+    const today = new Date().toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    const totalScore = Object.values(userProgress.testScores).reduce((a, b) => a + b, 0);
+    const avgScore = userProgress.passedBlocks.length > 0 ? Math.round(totalScore / userProgress.passedBlocks.length) : 0;
+    
+    return `
+    <div class="certificate-container">
+        <div class="certificate">
+            <div class="certificate-shine"></div>
+            <div class="certificate-corner top-left"></div>
+            <div class="certificate-corner top-right"></div>
+            <div class="certificate-corner bottom-left"></div>
+            <div class="certificate-corner bottom-right"></div>
+            
+            <div class="certificate-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            
+            <div class="certificate-title">СЕРТИФИКАТ</div>
+            <div class="certificate-subtitle">подтверждает успешное завершение обучения</div>
+            
+            <div class="certificate-recipient">
+                ${userName}
+            </div>
+            
+            <div class="certificate-details">
+                Прошёл все 4 блока обучения<br>
+                и стал настоящим <strong>ЮЖАНИНОМ</strong>
+            </div>
+            
+            <div class="certificate-stats">
+                <div class="certificate-stat">
+                    <div class="certificate-stat-value">4</div>
+                    <div class="certificate-stat-label">Блока</div>
+                </div>
+                <div class="certificate-stat">
+                    <div class="certificate-stat-value">${userProgress.testScores['chapter_1'] || 0}</div>
+                    <div class="certificate-stat-label">Блок 1</div>
+                </div>
+                <div class="certificate-stat">
+                    <div class="certificate-stat-value">${userProgress.testScores['chapter_2'] || 0}</div>
+                    <div class="certificate-stat-label">Блок 2</div>
+                </div>
+                <div class="certificate-stat">
+                    <div class="certificate-stat-value">${avgScore}%</div>
+                    <div class="certificate-stat-label">Средний</div>
+                </div>
+            </div>
+            
+            <div class="certificate-date">
+                <i class="fas fa-calendar-alt"></i> Выдан: ${today}
+            </div>
+            
+            <div class="certificate-footer">
+                <div class="certificate-signature">
+                    <div class="certificate-signature-line"></div>
+                    <div class="certificate-signature-text">Дато, основатель</div>
+                </div>
+                <div class="certificate-seal">
+                    <i class="fas fa-utensils"></i>
+                </div>
+            </div>
+            
+            <div class="certificate-actions">
+                <button class="certificate-btn certificate-btn-primary" onclick="shareCertificate()">
+                    <i class="fas fa-share-alt"></i> Поделиться
+                </button>
+                <button class="certificate-btn certificate-btn-secondary" onclick="downloadCertificate()">
+                    <i class="fas fa-download"></i> Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+}
+
+// Функция для конфетти
+function startConfetti() {
+    const colors = ['#D4AF37', '#F4D06F', '#722F37', '#9e4650', '#ffffff'];
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 50);
+    }
+}
+
+function shareCertificate() {
+    const user = tg.initDataUnsafe?.user;
+    const userName = user ? (user.first_name + (user.last_name ? ' ' + user.last_name : '')) : 'Южанин';
+    tg.shareUrl('', `🏆 Я стал ЮЖАНИНОМ! Пройти обучение: ${window.location.href}`);
+}
+
+function downloadCertificate() {
+    tg.showAlert('📸 Сделайте скриншот для сохранения сертификата!');
+}
+
+// ========== ОСТАЛЬНОЙ КОД ==========
 function parseCSV(text) {
     const rows = [];
     let currentRow = [];
@@ -753,7 +1152,6 @@ function loadProgress() {
 function saveProgress() {
     localStorage.setItem('ujzhan_progress', JSON.stringify(userProgress));
     
-    // ОТПРАВКА ПРОГРЕССА БОТУ (для синхронизации)
     if (tg && tg.sendData) {
         try {
             tg.sendData(JSON.stringify({
@@ -1103,14 +1501,10 @@ async function init() {
     updateProgressUI();
     renderReferences();
     
+    // Показываем сертификат если все блоки пройдены
     if (userProgress.passedBlocks.length === 4) {
-        document.getElementById('certificateContainer').innerHTML = `
-        <div class="certificate">
-            <div class="certificate-title">🏆 СЕРТИФИКАТ ЮЖАНИНА</div>
-            <div>Выдан: ${new Date().toLocaleDateString('ru-RU')}</div>
-            <div class="certificate-date">✅ Все 4 блока пройдены</div>
-        </div>
-        `;
+        document.getElementById('certificateContainer').innerHTML = generateCertificate();
+        startConfetti();
     }
     
     setTimeout(() => {
